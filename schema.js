@@ -51,7 +51,7 @@ const CardType = new GraphQLObjectType({
                 }
             }
         },
-        preferred_position: { type: GraphQLInt },
+        preferred_position: { type: GraphQLString },
         preferred_foot: { type: GraphQLInt },
         rareflag: { type: GraphQLInt },
         rating: { type: GraphQLInt },
