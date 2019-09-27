@@ -224,7 +224,7 @@ const RootQuery = new GraphQLObjectType({
                     if (qualtiy.includes("gold")) rating = [0, 64];
 
                     let res = await pool.query(`SELECT * FROM players WHERE rating >= ${rating[0]} AND rating <= ${rating[1]} AND rareflag = ${qualtiy.split("-")[0]}`);
-                    return res[0];
+                    return res;
                 } catch (e) {
                     console.log(e);
                     return null;
