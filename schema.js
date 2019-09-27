@@ -91,7 +91,7 @@ const PlayerType = new GraphQLObjectType({
             type: new GraphQLList(CardType),
             async resolve(parent, args) {
                 try {
-                    return await pool.query(`SELECT * FROM players WHERE asset_id = ${parent.id}`);
+                    return await pool.query(`SELECT * FROM players WHERE asset_id = ${parent.id} ORDER BY rating DESC`);
                 } catch (e) {
                     return null;
                 }
