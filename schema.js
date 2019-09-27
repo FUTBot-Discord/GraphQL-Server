@@ -26,7 +26,7 @@ const CardType = new GraphQLObjectType({
             }
         },
         nation_id: { type: GraphQLID },
-        nationInfo: {
+        nation_info: {
             type: NationType,
             async resolve(parent, args) {
                 try {
