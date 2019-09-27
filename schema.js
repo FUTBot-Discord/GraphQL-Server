@@ -199,7 +199,7 @@ const RootQuery = new GraphQLObjectType({
     description: 'Here you can find all the available queries.',
     fields: {
         getPlayerVersionById: {
-            type: PlayerType,
+            type: CardType,
             description: "Fetch player by id.",
             args: { id: { type: GraphQLID } },
             async resolve(parent, { id }) {
@@ -213,7 +213,7 @@ const RootQuery = new GraphQLObjectType({
             }
         },
         getPlayerVersionsByAssetId: {
-            type: new GraphQLList(PlayerType),
+            type: new GraphQLList(CardType),
             description: "Fetch list of players by asset_id.",
             args: { asset_id: { type: GraphQLID } },
             async resolve(parent, { asset_id }) {
