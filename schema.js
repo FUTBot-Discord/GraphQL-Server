@@ -212,6 +212,25 @@ const RootQuery = new GraphQLObjectType({
                 }
             }
         },
+        getPlayerVersionsByQuality: {
+            type: new GraphQLList(CardType),
+            description: "Fetch players by quality.",
+            args: { qualtiy: { type: GraphQLString } },
+            async resolve(parent, { qualtiy }) {
+                try {
+                    let rating;
+                    if (qualtiy.includes("gold")) rating = [75, 100];
+                    if (qualtiy.includes("silver")) rating = [65, 74];
+                    if (qualtiy.includes("gold")) rating = [0, 64];
+
+                    let res = await pool.query(`SELECT * FROM players WHERE rating >= ${rating[0]} AND rating <= ${rating[1]} AND rareflag = ${qualtiy.split("-")[0]}`);
+                    return res[0];
+                } catch (e) {
+                    console.log(e);
+                    return null;
+                }
+            }
+        },
         getPlayerVersionsByAssetId: {
             type: new GraphQLList(CardType),
             description: "Fetch list of players by asset_id.",
