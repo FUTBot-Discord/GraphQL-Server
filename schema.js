@@ -19,7 +19,6 @@ const CardType = new GraphQLObjectType({
             async resolve(parent) {
                 try {
                     let res = await pool.query(`SELECT * FROM leagues WHERE id = ${parent.league_id}`);
-                    pool.release();
                     return res[0];
                 } catch (e) {
                     return null;
@@ -32,7 +31,6 @@ const CardType = new GraphQLObjectType({
             async resolve(parent, args) {
                 try {
                     let res = await pool.query(`SELECT * FROM nations WHERE id = ${parent.nation_id}`);
-                    pool.release();
                     return res[0];
                 } catch (e) {
                     return null;
@@ -47,7 +45,6 @@ const CardType = new GraphQLObjectType({
             async resolve(parent, args) {
                 try {
                     let res = await pool.query(`SELECT * FROM players_meta WHERE id = ${parent.asset_id}`);
-                    pool.release();
                     return res[0];
                 } catch (e) {
                     return null;
@@ -65,9 +62,7 @@ const CardType = new GraphQLObjectType({
             type: new GraphQLList(CardType),
             async resolve(parent, args) {
                 try {
-                    let res = await pool.query(`SELECT * FROM players WHERE asset_id = ${parent.asset_id}`);
-                    pool.release();
-                    return res
+                    return await pool.query(`SELECT * FROM players WHERE asset_id = ${parent.asset_id}`);
                 } catch (e) {
                     return null;
                 }
@@ -79,7 +74,6 @@ const CardType = new GraphQLObjectType({
             async resolve(parent, args) {
                 try {
                     let res = await pool.query(`SELECT * FROM clubs WHERE id = ${parent.club_id}`);
-                    pool.release();
                     return res[0];
                 } catch (e) {
                     return null;
@@ -97,9 +91,7 @@ const PlayerType = new GraphQLObjectType({
             type: new GraphQLList(CardType),
             async resolve(parent, args) {
                 try {
-                    let res = await pool.query(`SELECT * FROM players WHERE asset_id = ${parent.id} ORDER BY rating DESC`);
-                    pool.release();
-                    return res;
+                    return await pool.query(`SELECT * FROM players WHERE asset_id = ${parent.id} ORDER BY rating DESC`);
                 } catch (e) {
                     return null;
                 }
@@ -131,7 +123,6 @@ const ClubType = new GraphQLObjectType({
             async resolve(parent) {
                 try {
                     let res = await pool.query(`SELECT * FROM leagues WHERE id = ${parent.league_id}`);
-                    pool.release();
                     return res[0];
                 } catch (e) {
                     return null;
@@ -143,9 +134,7 @@ const ClubType = new GraphQLObjectType({
             type: new GraphQLList(CardType),
             async resolve(parent, args) {
                 try {
-                    let res = await pool.query(`SELECT * FROM players WHERE club_id = ${parent.id}`);
-                    pool.release();
-                    return res;
+                    return await pool.query(`SELECT * FROM players WHERE club_id = ${parent.id}`);
                 } catch (e) {
                     return null;
                 }
@@ -164,9 +153,7 @@ const NationType = new GraphQLObjectType({
             type: new GraphQLList(LeagueType),
             async resolve(parent, args) {
                 try {
-                    let res = await pool.query(`SELECT * FROM leagues WHERE nation_id = ${parent.id}`);
-                    pool.release();
-                    return res;
+                    return await pool.query(`SELECT * FROM leagues WHERE nation_id = ${parent.id}`);
                 } catch (e) {
                     return null;
                 }
@@ -183,9 +170,7 @@ const LeagueType = new GraphQLObjectType({
             type: new GraphQLList(ClubType),
             async resolve(parent, args) {
                 try {
-                    let res = await pool.query(`SELECT * FROM clubs WHERE league_id = ${parent.id}`);
-                    pool.release();
-                    return res
+                    return await pool.query(`SELECT * FROM clubs WHERE league_id = ${parent.id}`);
                 } catch (e) {
                     return null;
                 }
@@ -199,7 +184,6 @@ const LeagueType = new GraphQLObjectType({
             async resolve(parent) {
                 try {
                     let res = await pool.query(`SELECT * FROM nations WHERE id = ${parent.nation_id}`);
-                    pool.release();
                     return res[0];
                 } catch (e) {
                     return null;
@@ -221,7 +205,6 @@ const RootQuery = new GraphQLObjectType({
             async resolve(parent, { id }) {
                 try {
                     let res = await pool.query(`SELECT * FROM players WHERE id = ${escape(id)}`);
-                    pool.release();
                     return res[0];
                 } catch (e) {
                     console.log(e);
@@ -235,9 +218,7 @@ const RootQuery = new GraphQLObjectType({
             args: { asset_id: { type: GraphQLID } },
             async resolve(parent, { asset_id }) {
                 try {
-                    let res = await pool.query(`SELECT * FROM players WHERE asset_id = ${escape(asset_id)}`);
-                    pool.release();
-                    return res;
+                    return await pool.query(`SELECT * FROM players WHERE asset_id = ${escape(asset_id)}`);
                 } catch (e) {
                     console.log(e);
                     return null;
@@ -250,9 +231,7 @@ const RootQuery = new GraphQLObjectType({
             args: { name: { type: GraphQLString } },
             async resolve(parent, { name }) {
                 try {
-                    let res = await pool.query(`SELECT * FROM players_meta WHERE CONCAT_WS(' ',first_name,last_name) LIKE ${escape(`%${name}%`)} OR common_name LIKE ${escape(`%${name}%`)} LIMIT 40`);
-                    pool.release();
-                    return res;
+                    return await pool.query(`SELECT * FROM players_meta WHERE CONCAT_WS(' ',first_name,last_name) LIKE ${escape(`%${name}%`)} OR common_name LIKE ${escape(`%${name}%`)} LIMIT 40`);
                 } catch (e) {
                     return null;
                 }
