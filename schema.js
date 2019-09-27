@@ -221,9 +221,9 @@ const RootQuery = new GraphQLObjectType({
                     let rating;
                     if (qualtiy.includes("gold")) rating = [75, 100];
                     if (qualtiy.includes("silver")) rating = [65, 74];
-                    if (qualtiy.includes("gold")) rating = [0, 64];
+                    if (qualtiy.includes("bronze")) rating = [0, 64];
 
-                    let res = await pool.query(`SELECT * FROM players WHERE rating >= ${rating[0]} AND rating <= ${rating[1]} AND rareflag = ${qualtiy.split("-")[0]}`);
+                    let res = await pool.query(`SELECT * FROM players WHERE rating >= ${rating[0]} AND rating <= ${rating[1]} AND rareflag = ${escape(qualtiy.split("-")[0])} LIMIT 10`);
                     return res;
                 } catch (e) {
                     console.log(e);
