@@ -250,7 +250,7 @@ const RootQuery = new GraphQLObjectType({
             args: { name: { type: GraphQLString } },
             async resolve(parent, { name }) {
                 try {
-                    return await pool.query(`SELECT pm.common_name, pm.first_name, pm.id, pm.last_name, pm.img, pm.birthday, pm.height FROM players p INNER JOIN players_meta pm ON p.asset_id = pm.id WHERE CONCAT_WS(' ',pm.first_name,pm.last_name) LIKE ${escape(`%${name}%`)} OR pm.common_name LIKE ${escape(`%${name}%`)} LIMIT 20`);
+                    return await pool.query(`SELECT DISTINCT pm.common_name, pm.first_name, pm.id, pm.last_name, pm.img, pm.birthday, pm.height FROM players p INNER JOIN players_meta pm ON p.asset_id = pm.id WHERE CONCAT_WS(' ',pm.first_name,pm.last_name) LIKE ${escape(`%${name}%`)} OR pm.common_name LIKE ${escape(`%${name}%`)} LIMIT 20`);
                 } catch (e) {
                     return null;
                 }
