@@ -268,7 +268,7 @@ const RootQuery = new GraphQLObjectType({
                 }
             }
         },
-        FUTBotgetPlayersByName: {
+        FUTBotGetPlayersByName: {
             type: new GraphQLList(FUTBotType),
             description: "Fetch list of players by name. This has a limit of 20 players.",
             args: { name: { type: GraphQLString }, rating: { type: GraphQLInt } },
