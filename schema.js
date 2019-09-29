@@ -1,5 +1,5 @@
 // Imports
-import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLBoolean } from 'graphql';
+import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList } from 'graphql';
 import { escape } from 'mysql';
 import pool from './mysql';
 
@@ -104,6 +104,18 @@ const PlayerType = new GraphQLObjectType({
         img: { type: GraphQLString },
         birthday: { type: GraphQLInt },
         height: { type: GraphQLInt }
+    })
+});
+
+const FUTBotType = new GraphQLObjectType({
+    name: 'FUTBot',
+    fields: () => ({
+        id: { type: GraphQLID },
+        common_name: { type: GraphQLString },
+        last_name: { type: GraphQLString },
+        first_name: { type: GraphQLString },
+        rareflag: { type: GraphQLInt },
+        rating: { type: GraphQLInt }
     })
 });
 
@@ -246,7 +258,7 @@ const RootQuery = new GraphQLObjectType({
         },
         getPlayersByName: {
             type: new GraphQLList(PlayerType),
-            description: "Fetch list of players by name. This has a limit of 40 players.",
+            description: "Fetch list of players by name. This has a limit of 20 players.",
             args: { name: { type: GraphQLString } },
             async resolve(parent, { name }) {
                 try {
@@ -254,6 +266,27 @@ const RootQuery = new GraphQLObjectType({
                 } catch (e) {
                     return null;
                 }
+            }
+        },
+        FUTBotgetPlayersByName: {
+            type: new GraphQLList(FUTBotType),
+            description: "Fetch list of players by name. This has a limit of 20 players.",
+            args: { name: { type: GraphQLString }, rating: { type: GraphQLInt } },
+            async resolve(parent, { name, rating }) {
+                if (rating && rating !== undefined && isFinite(rating)) {
+                    try {
+                        return await pool.query(`SELECT pm.common_name, pm.first_name, p.id, pm.last_name, p.rating, p.rareflag FROM players p INNER JOIN players_meta pm ON p.asset_id = pm.id WHERE (CONCAT_WS(' ',pm.first_name,pm.last_name) LIKE ${escape(`%${name}%`)} OR pm.common_name LIKE ${escape(`%${name}%`)}) AND p.rating = ${escape(rating)} ORDER BY p.rating DESC LIMIT 20`);
+                    } catch (e) {
+                        return null;
+                    }
+                } else {
+                    try {
+                        return await pool.query(`SELECT pm.common_name, pm.first_name, p.id, pm.last_name, p.rating, p.rareflag FROM players p INNER JOIN players_meta pm ON p.asset_id = pm.id WHERE CONCAT_WS(' ',pm.first_name,pm.last_name) LIKE ${escape(`%${name}%`)} OR pm.common_name LIKE ${escape(`%${name}%`)} ORDER BY p.rating DESC LIMIT 20`);
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
             }
         }
         // getPlayers: {
