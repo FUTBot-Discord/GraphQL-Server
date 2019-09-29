@@ -110,7 +110,7 @@ const PlayerType = new GraphQLObjectType({
 const FUTBotType = new GraphQLObjectType({
     name: 'FUTBot',
     fields: () => ({
-        id: { type: GraphQLID },
+        id: { type: GraphQLInt },
         common_name: { type: GraphQLString },
         last_name: { type: GraphQLString },
         first_name: { type: GraphQLString },
