@@ -1,5 +1,5 @@
 // Imports
-import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList } from 'graphql';
+import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLNonNull } from 'graphql';
 import { escape } from 'mysql';
 import pool from './mysql';
 
@@ -205,6 +205,61 @@ const LeagueType = new GraphQLObjectType({
     })
 });
 
+const CommandType = new GraphQLObjectType({
+    name: 'Command',
+    fields: () => ({
+        command: { type: GraphQLString },
+        guild_id: { type: GraphQLString },
+        id: { type: GraphQLInt }
+    })
+});
+
+const FlippingPlayerType = new GraphQLObjectType({
+    name: 'FlippingPlayer',
+    fields: () => ({
+        player_id: { type: GraphQLInt },
+        guild_id: { type: GraphQLString },
+        console: { type: GraphQLString },
+        id: { type: GraphQLInt },
+        buy_price: { type: GraphQLInt },
+        sell_price: { type: GraphQLInt },
+        sold_price: { type: GraphQLInt },
+        player_info: {
+            type: CardType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM players WHERE id = ${parent.player_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        }
+    })
+});
+
+const CommandPubType = new GraphQLObjectType({
+    name: 'CommandPub',
+    fields: () => ({
+        command: { type: GraphQLString },
+        id: { type: GraphQLInt }
+    })
+});
+
+const CommandLogType = new GraphQLObjectType({
+    name: 'CommandLog',
+    fields: () => ({
+        command: { type: GraphQLString },
+        guildName: { type: GraphQLString },
+        channelName: { type: GraphQLString },
+        userName: { type: GraphQLString },
+        guildId: { type: GraphQLInt },
+        channelId: { type: GraphQLInt },
+        userId: { type: GraphQLInt },
+        id: { type: GraphQLInt },
+        timestamp: { type: GraphQLString }
+    })
+});
 
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
@@ -288,6 +343,67 @@ const RootQuery = new GraphQLObjectType({
                 }
 
             }
+        },
+        getCommandsPublic: {
+            type: new GraphQLList(CommandPubType),
+            description: "Fetch list of public commands.",
+            async resolve(parent) {
+                try {
+                    return await pool.query(`SELECT * from commands_public`);
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        getCommandWhitelist: {
+            type: new GraphQLList(CommandType),
+            description: "Fetch list of commands allowed by guildId.",
+            args: { guild_id: { type: new GraphQLNonNull(GraphQLString) }, command: { type: GraphQLString } },
+            async resolve(parent, { guild_id, command }) {
+                if (command == undefined && !command) {
+                    try {
+                        return await pool.query(`SELECT * from whitelist_commands WHERE guild_id = ${escape(guild_id)}`);
+                    } catch (e) {
+                        return null;
+                    }
+                } else {
+                    try {
+                        return await pool.query(`SELECT * from whitelist_commands WHERE guild_id = ${escape(guild_id)} AND command = ${escape(command)}`);
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
+            }
+        },
+        getFlippingList: {
+            type: new GraphQLList(FlippingPlayerType),
+            description: "Fetch flipping list from guildId and console.",
+            args: { guild_id: { type: new GraphQLNonNull(GraphQLString) }, console: { type: new GraphQLNonNull(GraphQLString) } },
+            async resolve(parent, { guild_id, console }) {
+                try {
+                    return await pool.query(`SELECT * from flipping_list WHERE guild_id = ${escape(guild_id)} AND console = ${escape(console)}`);
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        getFlippingListItem: {
+            type: FlippingPlayerType,
+            description: "Fetch flipping list item guildId, console and playerId.",
+            args: {
+                guild_id: { type: new GraphQLNonNull(GraphQLString) },
+                console: { type: new GraphQLNonNull(GraphQLString) },
+                player_id: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            async resolve(parent, { guild_id, console, player_id }) {
+                try {
+                    let res = await pool.query(`SELECT * from flipping_list WHERE guild_id = ${escape(guild_id)} AND console = ${escape(console)} AND player_id = ${escape(player_id)}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
         }
         // getPlayers: {
         //     type: new GraphQLList(PlayerType),
@@ -334,6 +450,121 @@ const RootQuery = new GraphQLObjectType({
     }
 });
 
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    description: 'Here you can find all the available mutations.',
+    fields: {
+        addCommandWhitelist: {
+            type: CommandType,
+            args: {
+                command: { type: new GraphQLNonNull(GraphQLString) },
+                guildId: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, { command, guildId }) {
+                try {
+                    pool.query(`INSERT INTO whitelist_commands (command, guild_id) VALUES (${escape(command)}, ${escape(guildId)})`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        removeCommandWhitelist: {
+            type: CommandType,
+            args: {
+                command: { type: new GraphQLNonNull(GraphQLString) },
+                guildId: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, { command, guildId }) {
+                try {
+                    pool.query(`DELETE FROM whitelist_commands WHERE command = ${escape(command)} AND guild_id = ${escape(guildId)}`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        addCommandLog: {
+            type: CommandLogType,
+            args: {
+                command: { type: new GraphQLNonNull(GraphQLString) },
+                guildId: { type: new GraphQLNonNull(GraphQLString) },
+                channelId: { type: new GraphQLNonNull(GraphQLString) },
+                userId: { type: new GraphQLNonNull(GraphQLString) },
+                guildName: { type: new GraphQLNonNull(GraphQLString) },
+                channelName: { type: new GraphQLNonNull(GraphQLString) },
+                userName: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, { command, guildId, channelId, userId, guildName, channelName, userName }) {
+                try {
+                    pool.query(`INSERT INTO command_log (guild_name, guild_id, user_name, user_id, channel_name, channel_id, command) VALUES (${escape(guildName)}, ${guildId}, ${escape(userName)}, ${userId}, ${escape(channelName)}, ${channelId}, ${escape(command)})`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        removeItemFlippingList: {
+            type: FlippingPlayerType,
+            args: {
+                pConsole: { type: new GraphQLNonNull(GraphQLString) },
+                guildId: { type: new GraphQLNonNull(GraphQLString) },
+                player_id: { type: GraphQLInt }
+            },
+            resolve(parent, { pConsole, guildId, player_id }) {
+                if (!player_id || player_id == undefined) {
+                    try {
+                        pool.query(`DELETE FROM flipping_list WHERE guild_id = ${escape(guildId)} AND console = ${escape(pConsole)}`);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                } else {
+                    try {
+                        pool.query(`DELETE FROM flipping_list WHERE guild_id = ${escape(guildId)} AND console = ${escape(pConsole)} AND player_id = ${escape(player_id)}`);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+
+            }
+        },
+        addItemFlippingList: {
+            type: FlippingPlayerType,
+            args: {
+                pConsole: { type: new GraphQLNonNull(GraphQLString) },
+                guildId: { type: new GraphQLNonNull(GraphQLString) },
+                player_id: { type: new GraphQLNonNull(GraphQLInt) },
+                buy_price: { type: new GraphQLNonNull(GraphQLInt) },
+                sell_price: { type: new GraphQLNonNull(GraphQLInt) },
+                sold_price: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, { pConsole, guildId, player_id, buy_price, sell_price, sold_price }) {
+                try {
+                    pool.query(`INSERT INTO flipping_list (console, guild_id, player_id, buy_price, sell_price, sold_price) VALUES (${escape(pConsole)}, ${escape(guildId)}, ${escape(player_id)}, ${escape(buy_price)}, ${escape(sell_price)}, ${escape(sold_price)})`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        updateItemFlippingList: {
+            type: FlippingPlayerType,
+            args: {
+                pConsole: { type: new GraphQLNonNull(GraphQLString) },
+                guildId: { type: new GraphQLNonNull(GraphQLString) },
+                player_id: { type: new GraphQLNonNull(GraphQLInt) },
+                buy_price: { type: new GraphQLNonNull(GraphQLInt) },
+                sell_price: { type: new GraphQLNonNull(GraphQLInt) },
+                sold_price: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            resolve(parent, { pConsole, guildId, player_id, buy_price, sell_price, sold_price }) {
+                try {
+                    pool.query(`UPDATE flipping_list buy_price = ${escape(buy_price)}, sell_price = ${escape(sell_price)}, sold_price = ${escape(sold_price)} WHERE guild_id = ${escape(guildId)} AND console = ${escape(pConsole)} AND player_id = ${escape(player_id)}`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        }
+    }
+});
+
 export default new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation: Mutation
 });
