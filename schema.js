@@ -495,7 +495,7 @@ const Mutation = new GraphQLObjectType({
             },
             resolve(parent, { command, guildId, channelId, userId, guildName, channelName, userName }) {
                 try {
-                    pool.query(`INSERT INTO command_log (guild_name, guild_id, user_name, user_id, channel_name, channel_id, command) VALUES (${escape(guildName)}, ${guildId}, ${escape(userName)}, ${userId}, ${escape(channelName)}, ${channelId}, ${escape(command)})`);
+                    pool.query(`INSERT INTO command_log (guild_name, guild_id, user_name, user_id, channel_name, channel_id, command) VALUES (${escape(guildName.rIE())}, ${guildId}, ${escape(userName.rIE())}, ${userId}, ${escape(channelName.rIE())}, ${channelId}, ${escape(command.rIE())})`);
                 } catch (e) {
                     console.log(e);
                 }
@@ -568,3 +568,7 @@ export default new GraphQLSchema({
     query: RootQuery,
     mutation: Mutation
 });
+
+String.prototype.rIE = function (char) {
+    return this.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
+};
