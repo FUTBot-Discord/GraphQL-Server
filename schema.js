@@ -294,13 +294,31 @@ const RootQuery = new GraphQLObjectType({
                 }
             },
             async resolve(parent, { ratingB, ratingT, rareflag }) {
-                try {
-                    let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} AND rareflag = ${escape(rareflag)} ORDER BY RAND() LIMIT 1`);
-                    return res[0];
-                } catch (e) {
-                    console.log(e);
-                    return null;
+                if (!rareflag || rareflag == undefined) {
+                    try {
+                        let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} ORDER BY RAND() LIMIT 1`);
+                        return res[0];
+                    } catch (e) {
+                        console.log(e);
+                        return null;
+                    }
+                } else {
+                    let rareflags = rareflag.split(",");
+                    let rArray = [];
+
+                    for (r of rareflags) {
+                        rArray.push(`rareflag = ${escape(r)}`);
+                    }
+
+                    try {
+                        let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} AND (${rArray.join(" OR ")}) ORDER BY RAND() LIMIT 1`);
+                        return res[0];
+                    } catch (e) {
+                        console.log(e);
+                        return null;
+                    }
                 }
+
             }
         },
         getPlayerVersionsByQuality: {
