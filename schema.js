@@ -246,6 +246,30 @@ const CommandPubType = new GraphQLObjectType({
     })
 });
 
+const CardColorType = new GraphQLObjectType({
+    name: 'CardColor',
+    fields: () => ({
+        color_stripes: { type: GraphQLString },
+        color_attr_values: { type: GraphQLString },
+        color_attr_names: { type: GraphQLString },
+        color_text: { type: GraphQLString },
+        id: { type: GraphQLInt },
+        font_1: { type: GraphQLString },
+        font_2: { type: GraphQLString },
+        font_3: { type: GraphQLString },
+        rarity: { type: GraphQLString }
+    })
+});
+
+const PackType = new GraphQLObjectType({
+    name: 'Pack',
+    fields: () => ({
+        name: { type: GraphQLString },
+        id: { type: GraphQLInt },
+        description: { type: GraphQLString }
+    })
+});
+
 const CommandLogType = new GraphQLObjectType({
     name: 'CommandLog',
     fields: () => ({
@@ -273,6 +297,33 @@ const RootQuery = new GraphQLObjectType({
                 try {
                     let res = await pool.query(`SELECT * FROM players WHERE id = ${escape(id)}`);
                     return res[0];
+                } catch (e) {
+                    console.log(e);
+                    return null;
+                }
+            }
+        },
+        getCardColorsByRarity: {
+            type: CardColorType,
+            description: "Fetch card colors by rarity.",
+            args: { rarity: { type: GraphQLString } },
+            async resolve(parent, { rarity }) {
+                try {
+                    let res = await pool.query(`SELECT * FROM card_colors WHERE rarity = ${escape(rarity)}`);
+                    return res[0];
+                } catch (e) {
+                    console.log(e);
+                    return null;
+                }
+            }
+        },
+        getPacks: {
+            type: new GraphQLList(PackType),
+            description: "Fetch packs.",
+            async resolve(parent) {
+                try {
+                    let res = await pool.query(`SELECT * FROM packs`);
+                    return res;
                 } catch (e) {
                     console.log(e);
                     return null;
