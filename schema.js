@@ -279,6 +279,24 @@ const RootQuery = new GraphQLObjectType({
                 }
             }
         },
+        getPlayerVersionPackEmulator: {
+            type: CardType,
+            description: "Fetch player for pack emulator.",
+            args: {
+                ratingB: GraphQLInt,
+                ratingT: GraphQLInt,
+                rareflag: GraphQLInt
+            },
+            async resolve(parent, { ratingB, ratingT, rareflag }) {
+                try {
+                    let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} AND rareflag = ${escape(rareflag)} ORDER BY RAND() LIMIT 1`);
+                    return res[0];
+                } catch (e) {
+                    console.log(e);
+                    return null;
+                }
+            }
+        },
         getPlayerVersionsByQuality: {
             type: new GraphQLList(CardType),
             description: "Fetch players by quality.",
