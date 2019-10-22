@@ -290,7 +290,7 @@ const RootQuery = new GraphQLObjectType({
                     type: GraphQLInt
                 },
                 rareflag: {
-                    type: GraphQLInt
+                    type: GraphQLID
                 }
             },
             async resolve(parent, { ratingB, ratingT, rareflag }) {
@@ -306,7 +306,7 @@ const RootQuery = new GraphQLObjectType({
                     let rareflags = rareflag.split(",");
                     let rArray = [];
 
-                    for (r of rareflags) {
+                    for (let r of rareflags) {
                         rArray.push(`rareflag = ${escape(r)}`);
                     }
 
