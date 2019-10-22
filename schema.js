@@ -283,9 +283,15 @@ const RootQuery = new GraphQLObjectType({
             type: CardType,
             description: "Fetch player for pack emulator.",
             args: {
-                ratingB: GraphQLInt,
-                ratingT: GraphQLInt,
-                rareflag: GraphQLInt
+                ratingB: {
+                    type: GraphQLInt
+                },
+                ratingT: {
+                    type: GraphQLInt
+                },
+                rareflag: {
+                    type: GraphQLInt
+                }
             },
             async resolve(parent, { ratingB, ratingT, rareflag }) {
                 try {
