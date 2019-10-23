@@ -1,5 +1,5 @@
 // Imports
-import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLNonNull } from 'graphql';
+import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLBoolean } from 'graphql';
 import { escape } from 'mysql';
 import pool from './mysql';
 
@@ -80,7 +80,8 @@ const CardType = new GraphQLObjectType({
                 }
             }
         },
-        weakfootabilitytypecode: { type: GraphQLInt }
+        weakfootabilitytypecode: { type: GraphQLInt },
+        totw: { type: GraphQLBoolean }
     })
 });
 
@@ -265,8 +266,10 @@ const PackType = new GraphQLObjectType({
     name: 'Pack',
     fields: () => ({
         name: { type: GraphQLString },
+        name_id: { type: GraphQLString },
         id: { type: GraphQLInt },
-        description: { type: GraphQLString }
+        description: { type: GraphQLString },
+        price: { type: GraphQLInt }
     })
 });
 
@@ -320,10 +323,35 @@ const RootQuery = new GraphQLObjectType({
         getPacks: {
             type: new GraphQLList(PackType),
             description: "Fetch packs.",
-            async resolve(parent) {
+            args: { name: { type: GraphQLString } },
+            async resolve(parent, { name }) {
+                if (!name || name == undefined) {
+                    try {
+                        let res = await pool.query(`SELECT * FROM packs`);
+                        return res;
+                    } catch (e) {
+                        console.log(e);
+                        return null;
+                    }
+                } else {
+                    try {
+                        let res = await pool.query(`SELECT * FROM packs WHERE name LIKE ${escape(`%${name}%`)}`);
+                        return res;
+                    } catch (e) {
+                        console.log(e);
+                        return null;
+                    }
+                }
+            }
+        },
+        getPackById: {
+            type: PackType,
+            description: "Fetch pack by id.",
+            args: { id: { type: GraphQLID } },
+            async resolve(parent, { id }) {
                 try {
-                    let res = await pool.query(`SELECT * FROM packs`);
-                    return res;
+                    let res = await pool.query(`SELECT * FROM packs WHERE id = ${escape(id)}`);
+                    return res[0];
                 } catch (e) {
                     console.log(e);
                     return null;
@@ -361,12 +389,22 @@ const RootQuery = new GraphQLObjectType({
                         rArray.push(`rareflag = ${escape(r)}`);
                     }
 
-                    try {
-                        let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} AND (${rArray.join(" OR ")}) ORDER BY RAND() LIMIT 1`);
-                        return res[0];
-                    } catch (e) {
-                        console.log(e);
-                        return null;
+                    if (rareflags.includes("3")) {
+                        try {
+                            let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} AND (${rArray.join(" OR ")}) AND totw = true ORDER BY RAND() LIMIT 1`);
+                            return res[0];
+                        } catch (e) {
+                            console.log(e);
+                            return null;
+                        }
+                    } else {
+                        try {
+                            let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} AND (${rArray.join(" OR ")}) ORDER BY RAND() LIMIT 1`);
+                            return res[0];
+                        } catch (e) {
+                            console.log(e);
+                            return null;
+                        }
                     }
                 }
 
