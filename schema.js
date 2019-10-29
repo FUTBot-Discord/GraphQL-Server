@@ -269,7 +269,8 @@ const PackType = new GraphQLObjectType({
         name_id: { type: GraphQLString },
         id: { type: GraphQLInt },
         description: { type: GraphQLString },
-        price: { type: GraphQLInt }
+        price: { type: GraphQLInt },
+        players: { type: GraphQLInt }
     })
 });
 
