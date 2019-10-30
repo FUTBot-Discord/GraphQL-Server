@@ -81,7 +81,8 @@ const CardType = new GraphQLObjectType({
             }
         },
         weakfootabilitytypecode: { type: GraphQLInt },
-        totw: { type: GraphQLBoolean }
+        totw: { type: GraphQLBoolean },
+        min_price: { type: GraphQLInt }
     })
 });
 
@@ -271,6 +272,57 @@ const PackType = new GraphQLObjectType({
         description: { type: GraphQLString },
         price: { type: GraphQLInt },
         players: { type: GraphQLInt }
+    })
+});
+
+const UserClubType = new GraphQLObjectType({
+    name: 'UserClub',
+    fields: () => ({
+        id: { type: GraphQLInt },
+        author_id: { type: GraphQLString },
+        creation_time: { type: GraphQLInt },
+        price: { type: GraphQLString },
+        player_list: {
+            type: new GraphQLList(ClubPlayerType),
+            async resolve(parent, args) {
+                try {
+                    return await pool.query(`SELECT * FROM club_players WHERE club_id = ${parent.id}`);
+                } catch (e) {
+                    return null;
+                }
+            }
+        }
+    })
+});
+
+const ClubPlayerType = new GraphQLObjectType({
+    name: 'ClubPlayer',
+    fields: () => ({
+        id: { type: GraphQLInt },
+        club_id: { type: GraphQLString },
+        player_id: { type: GraphQLString },
+        card_info: {
+            type: CardType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM players WHERE id = ${parent.player_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        club_info: {
+            type: UserClubType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM user_clubs WHERE id = ${parent.club_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        }
     })
 });
 
@@ -536,6 +588,47 @@ const RootQuery = new GraphQLObjectType({
                     return null;
                 }
             }
+        },
+        getUserClubByAuthorId: {
+            type: UserClubType,
+            description: "Fetch club info by authorid",
+            args: {
+                author_id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            async resolve(parent, { author_id }) {
+                try {
+                    let res = await pool.query(`SELECT * from user_clubs WHERE author_id = ${escape(author_id)}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        getClubPlayer: {
+            type: ClubPlayerType,
+            description: "Fetch club player by id, playerid or clubid",
+            args: {
+                club_id: { type: GraphQLString },
+                player_id: { type: GraphQLString },
+                id: { type: GraphQLInt },
+            },
+            async resolve(parent, { club_id, player_id, id }) {
+                if (!id || id == undefined) {
+                    try {
+                        let res = await pool.query(`SELECT * from club_players WHERE club_id = ${escape(club_id)} AND player_id = ${escape(player_id)}`);
+                        return res[0];
+                    } catch (e) {
+                        return null;
+                    }
+                } else {
+                    try {
+                        let res = await pool.query(`SELECT * from club_players WHERE id = ${escape(id)}`);
+                        return res[0];
+                    } catch (e) {
+                        return null;
+                    }
+                }
+            }
         }
         // getPlayers: {
         //     type: new GraphQLList(PlayerType),
@@ -688,6 +781,61 @@ const Mutation = new GraphQLObjectType({
             resolve(parent, { pConsole, guildId, player_id, buy_price, sell_price, sold_price }) {
                 try {
                     pool.query(`UPDATE flipping_list buy_price = ${escape(buy_price)}, sell_price = ${escape(sell_price)}, sold_price = ${escape(sold_price)} WHERE guild_id = ${escape(guildId)} AND console = ${escape(pConsole)} AND player_id = ${escape(player_id)}`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        addClubPlayer: {
+            type: ClubPlayerType,
+            args: {
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                player_id: { type: new GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, { club_id, player_id }) {
+                try {
+                    pool.query(`INSERT INTO club_players (club_id, player_id) VALUES (${escape(club_id)}, ${escape(player_id)})`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        createUserClub: {
+            type: UserClubType,
+            args: {
+                author_id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, { author_id }) {
+                try {
+                    pool.query(`INSERT INTO user_clubs (author_id) VALUES (${escape(author_id)})`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        addCoinsToClub: {
+            type: UserClubType,
+            args: {
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                coins: { type: new GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, { club_id, coins }) {
+                try {
+                    pool.query(`UPDATE user_clubs SET coins = coins + ${escape(coins)} WHERE id = ${escape(club_id)}`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        removeCoinsFromClub: {
+            type: UserClubType,
+            args: {
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                coins: { type: new GraphQLNonNull(GraphQLString) },
+            },
+            resolve(parent, { club_id, coins }) {
+                try {
+                    pool.query(`UPDATE user_clubs SET coins = coins - ${escape(coins)} WHERE id = ${escape(club_id)}`);
                 } catch (e) {
                     console.log(e);
                 }
