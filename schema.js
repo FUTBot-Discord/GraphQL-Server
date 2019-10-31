@@ -609,7 +609,7 @@ const RootQuery = new GraphQLObjectType({
             description: "Fetch all active TOTW players.",
             async resolve(parent) {
                 try {
-                    return await pool.query(`SELECT * from players WHERE totw = true`);
+                    return await pool.query(`SELECT * from players WHERE totw = true ORDER BY rating DESC`);
                 } catch (e) {
                     return null;
                 }
