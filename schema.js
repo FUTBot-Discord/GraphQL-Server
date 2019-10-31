@@ -604,6 +604,17 @@ const RootQuery = new GraphQLObjectType({
                 }
             }
         },
+        getActiveTOTWPlayers: {
+            type: new GraphQLList(CardType),
+            description: "Fetch all active TOTW players.",
+            async resolve(parent) {
+                try {
+                    return await pool.query(`SELECT * from players WHERE totw = true`);
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
         getClubPlayer: {
             type: ClubPlayerType,
             description: "Fetch club player by id, playerid or clubid",
