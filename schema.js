@@ -271,6 +271,7 @@ const PackType = new GraphQLObjectType({
         id: { type: GraphQLInt },
         description: { type: GraphQLString },
         price: { type: GraphQLInt },
+        points: { type: GraphQLInt },
         players: { type: GraphQLInt }
     })
 });
@@ -281,7 +282,8 @@ const UserClubType = new GraphQLObjectType({
         id: { type: GraphQLInt },
         author_id: { type: GraphQLString },
         creation_time: { type: GraphQLInt },
-        price: { type: GraphQLString },
+        coins: { type: GraphQLString },
+        points: { type: GraphQLInt },
         player_list: {
             type: new GraphQLList(ClubPlayerType),
             async resolve(parent, args) {
@@ -638,6 +640,20 @@ const RootQuery = new GraphQLObjectType({
                     } catch (e) {
                         return null;
                     }
+                }
+            }
+        },
+        getClubCollection: {
+            type: new GraphQLList(ClubPlayerType),
+            description: "Fetch all club players.",
+            args: {
+                club_id: { type: GraphQLString }
+            },
+            async resolve(parent, { club_id }) {
+                try {
+                    return await pool.query(`SELECT c.id, c.player_id, c.club_id from club_players c RIGHT OUTER JOIN players p ON p.id = c.player_id WHERE c.club_id = ${escape(club_id)} ORDER BY p.rating DESC`);
+                } catch (e) {
+                    return null;
                 }
             }
         }
