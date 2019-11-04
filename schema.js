@@ -282,7 +282,7 @@ const UserClubType = new GraphQLObjectType({
         id: { type: GraphQLInt },
         author_id: { type: GraphQLString },
         creation_time: { type: GraphQLInt },
-        coins: { type: GraphQLString },
+        coins: { type: GraphQLInt },
         points: { type: GraphQLInt },
         player_list: {
             type: new GraphQLList(ClubPlayerType),
@@ -294,6 +294,59 @@ const UserClubType = new GraphQLObjectType({
                 }
             }
         }
+    })
+});
+
+const AuctionPlayerType = new GraphQLObjectType({
+    name: 'AuctionPlayer',
+    fields: () => ({
+        id: { type: GraphQLInt },
+        player_id: { type: GraphQLInt },
+        b_club_id: { type: GraphQLString },
+        s_club_id: { type: GraphQLString },
+        current_bid: { type: GraphQLInt },
+        buy_now: { type: GraphQLInt },
+        end_timestamp: { type: GraphQLString },
+        card_info: {
+            type: CardType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM players WHERE id = ${parent.player_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        b_club_info: {
+            type: UserClubType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM user_clubs WHERE id = ${parent.b_club_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        s_club_info: {
+            type: UserClubType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM user_clubs WHERE id = ${parent.s_club_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        }
+    })
+});
+
+const AuctionCountType = new GraphQLObjectType({
+    name: 'AuctionCount',
+    fields: () => ({
+        auctions: { type: GraphQLInt }
     })
 });
 
@@ -647,13 +700,127 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(ClubPlayerType),
             description: "Fetch all club players.",
             args: {
-                club_id: { type: GraphQLString }
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                name: { type: GraphQLString },
+                page: { type: GraphQLInt }
             },
-            async resolve(parent, { club_id }) {
-                try {
-                    return await pool.query(`SELECT c.id, c.player_id, c.club_id from club_players c RIGHT OUTER JOIN players p ON p.id = c.player_id WHERE c.club_id = ${escape(club_id)} ORDER BY p.rating DESC`);
-                } catch (e) {
+            async resolve(parent, { club_id, name, page }) {
+                if (!name || name == undefined) {
+                    if (!page || page == undefined) {
+                        try {
+                            return await pool.query(`SELECT c.* from club_players c JOIN players p ON p.id = c.player_id WHERE c.club_id = ${escape(club_id)} ORDER BY p.rating DESC`);
+                        } catch (e) {
+                            return null;
+                        }
+                    } else {
+                        let limit;
+
+                        if (page == 1 || page == 0) {
+                            limit = `LIMIT 18`;
+                        } else if (page > 1) {
+                            let n = (page - 1) * 18;
+                            limit = `LIMIT ${n},18`;
+                        } else {
+                            return null;
+                        }
+
+                        try {
+                            return await pool.query(`SELECT c.* from club_players c JOIN players p ON p.id = c.player_id WHERE c.club_id = ${escape(club_id)} ORDER BY p.rating DESC ${limit}`);
+                        } catch (e) {
+                            return null;
+                        }
+                    }
+                } else {
+                    if (!page || page == undefined) {
+                        try {
+                            return await pool.query(`SELECT c.* from club_players c JOIN players p ON p.id = c.player_id JOIN futbot.players_meta m ON m.id = p.asset_id WHERE c.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY p.rating DESC`);
+                        } catch (e) {
+                            return null;
+                        }
+                    } else {
+                        let limit;
+
+                        if (page == 1 || page == 0) {
+                            limit = `LIMIT 18`;
+                        } else if (page > 1) {
+                            let n = (page - 1) * 18;
+                            limit = `LIMIT ${n},18`;
+                        } else {
+                            return null;
+                        }
+
+                        try {
+                            return await pool.query(`SELECT c.* from club_players c JOIN players p ON p.id = c.player_id JOIN futbot.players_meta m ON m.id = p.asset_id WHERE c.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY p.rating DESC ${limit}`);
+                        } catch (e) {
+                            return null;
+                        }
+                    }
+                }
+            }
+        },
+        getCurrentAuctions: {
+            type: new GraphQLList(AuctionPlayerType),
+            description: "Fetch page of actions.",
+            args: {
+                name: { type: GraphQLString },
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                page: { type: new GraphQLNonNull(GraphQLInt) }
+            },
+            async resolve(parent, { club_id, name, page }) {
+                let limit;
+
+                if (page == 1 || page == 0) {
+                    limit = `LIMIT 16`;
+                } else if (page > 1) {
+                    let n = (page - 1) * 16;
+                    limit = `LIMIT ${n},16`;
+                } else {
                     return null;
+                }
+
+                let cDate = new Date();
+                cDate = cDate.getTime();
+
+                if (!name || name == undefined) {
+                    try {
+                        return await pool.query(`SELECT * FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} ORDER BY end_timestamp DESC ${limit}`);
+                    } catch (e) {
+                        return null;
+                    }
+                } else {
+                    try {
+                        return await pool.query(`SELECT * FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY end_timestamp DESC ${limit}`);
+                    } catch (e) {
+                        return null;
+                    }
+                }
+            }
+        },
+        getCurrentAuctionsCount: {
+            type: AuctionCountType,
+            description: "Fetch amount of auctions.",
+            args: {
+                name: { type: GraphQLString },
+                club_id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            async resolve(parent, { club_id, name, page }) {
+                let cDate = new Date();
+                cDate = cDate.getTime();
+
+                if (!name || name == undefined) {
+                    try {
+                        let res = await pool.query(`SELECT COUNT(id) as auctions FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate}`);
+                        return res[0];
+                    } catch (e) {
+                        return null;
+                    }
+                } else {
+                    try {
+                        let res = await pool.query(`SELECT COUNT(id) as auctions FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)})`);
+                        return res[0];
+                    } catch (e) {
+                        return null;
+                    }
                 }
             }
         }
