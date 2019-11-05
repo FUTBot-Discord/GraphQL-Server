@@ -343,6 +343,48 @@ const AuctionPlayerType = new GraphQLObjectType({
     })
 });
 
+const TransferpileType = new GraphQLObjectType({
+    name: 'Transferpile',
+    fields: () => ({
+        id: { type: GraphQLInt },
+        player_id: { type: GraphQLInt },
+        club_id: { type: GraphQLString },
+        card_info: {
+            type: CardType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM players WHERE id = ${parent.player_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        club_info: {
+            type: UserClubType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM user_clubs WHERE id = ${parent.b_club_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        auction_info: {
+            type: AuctionPlayerType,
+            async resolve(parent, args) {
+                try {
+                    let res = await pool.query(`SELECT * FROM auctions WHERE id = ${parent.auction_id}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        }
+    })
+});
+
 const AuctionCountType = new GraphQLObjectType({
     name: 'AuctionCount',
     fields: () => ({
@@ -756,6 +798,74 @@ const RootQuery = new GraphQLObjectType({
                         }
                     }
                 }
+            }
+        },
+        getTransferpile: {
+            type: new GraphQLList(TransferpileType),
+            description: "Fetch all from transferpile.",
+            args: {
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                page: { type: GraphQLInt }
+            },
+            async resolve(parent, { club_id, name, page }) {
+                if (!page || page == undefined) {
+                    try {
+                        return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} ORDER BY t.auction_id IS NOT NULL, p.rating DESC`);
+                    } catch (e) {
+                        return null;
+                    }
+                } else {
+                    let limit;
+
+                    if (page == 1 || page == 0) {
+                        limit = `LIMIT 12`;
+                    } else if (page > 1) {
+                        let n = (page - 1) * 12;
+                        limit = `LIMIT ${n},12`;
+                    } else {
+                        return null;
+                    }
+
+                    try {
+                        return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} ORDER BY t.auction_id IS NOT NULL, p.rating DESC ${limit}`);
+                    } catch (e) {
+                        return null;
+                    }
+                }
+            }
+        },
+        getTransferpilePlayer: {
+            type: TransferpileType,
+            description: "Fetch player from transferpile.",
+            args: {
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            async resolve(parent, { club_id, id }) {
+                try {
+                    let res = await pool.query(`SELECT * FROM club_transfers WHERE club_id = ${escape(club_id)} AND id = ${escape(id)}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+
+            }
+        },
+        getClubCollectionPlayer: {
+            type: ClubPlayerType,
+            description: "Fetch player from club by id.",
+            args: {
+                club_id: { type: new GraphQLNonNull(GraphQLString) },
+                id: { type: new GraphQLNonNull(GraphQLString) }
+            },
+            async resolve(parent, { club_id, id }) {
+                try {
+                    let res = await pool.query(`SELECT * FROM club_players WHERE club_id = ${escape(club_id)} AND id = ${escape(id)}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+
             }
         },
         getCurrentAuctions: {
