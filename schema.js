@@ -808,31 +808,61 @@ const RootQuery = new GraphQLObjectType({
             description: "Fetch all from transferpile.",
             args: {
                 club_id: { type: new GraphQLNonNull(GraphQLString) },
-                page: { type: GraphQLInt }
+                page: { type: GraphQLInt },
+                name: {
+                    type: GraphQLString
+                }
             },
             async resolve(parent, { club_id, name, page }) {
-                if (!page || page == undefined) {
-                    try {
-                        return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} ORDER BY t.auction_id IS NOT NULL, p.rating DESC`);
-                    } catch (e) {
-                        return null;
+                if (!name || name == undefined) {
+                    if (!page || page == undefined) {
+                        try {
+                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} ORDER BY t.auction_id IS NOT NULL, p.rating DESC`);
+                        } catch (e) {
+                            return null;
+                        }
+                    } else {
+                        let limit;
+
+                        if (page == 1 || page == 0) {
+                            limit = `LIMIT 12`;
+                        } else if (page > 1) {
+                            let n = (page - 1) * 12;
+                            limit = `LIMIT ${n},12`;
+                        } else {
+                            return null;
+                        }
+
+                        try {
+                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} ORDER BY t.auction_id IS NOT NULL, p.rating DESC ${limit}`);
+                        } catch (e) {
+                            return null;
+                        }
                     }
                 } else {
-                    let limit;
-
-                    if (page == 1 || page == 0) {
-                        limit = `LIMIT 12`;
-                    } else if (page > 1) {
-                        let n = (page - 1) * 12;
-                        limit = `LIMIT ${n},12`;
+                    if (!page || page == undefined) {
+                        try {
+                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY t.auction_id IS NOT NULL, p.rating DESC`);
+                        } catch (e) {
+                            return null;
+                        }
                     } else {
-                        return null;
-                    }
+                        let limit;
 
-                    try {
-                        return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} ORDER BY t.auction_id IS NOT NULL, p.rating DESC ${limit}`);
-                    } catch (e) {
-                        return null;
+                        if (page == 1 || page == 0) {
+                            limit = `LIMIT 12`;
+                        } else if (page > 1) {
+                            let n = (page - 1) * 12;
+                            limit = `LIMIT ${n},12`;
+                        } else {
+                            return null;
+                        }
+
+                        try {
+                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY t.auction_id IS NOT NULL, p.rating DESC ${limit}`);
+                        } catch (e) {
+                            return null;
+                        }
                     }
                 }
             }
