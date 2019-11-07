@@ -349,6 +349,9 @@ const TransferpileType = new GraphQLObjectType({
         id: { type: GraphQLInt },
         player_id: { type: GraphQLInt },
         club_id: { type: GraphQLString },
+        auction_id: {
+            type: GraphQLInt
+        },
         card_info: {
             type: CardType,
             async resolve(parent, args) {
@@ -1104,6 +1107,40 @@ const Mutation = new GraphQLObjectType({
                 }
             }
         },
+        addTransferPlayer: {
+            type: TransferpileType,
+            args: {
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                player_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                auction_id: {
+                    type: GraphQLInt
+                },
+            },
+            resolve(parent, {
+                club_id,
+                player_id,
+                auction_id
+            }) {
+                if (!auction_id || auction_id == undefined) {
+                    try {
+                        pool.query(`INSERT INTO club_transfers (club_id, player_id) VALUES (${escape(club_id)}, ${escape(player_id)})`);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                } else {
+                    try {
+                        pool.query(`INSERT INTO club_transfers (club_id, player_id, auction_id) VALUES (${escape(club_id)}, ${escape(player_id)}, ${escape(auction_id)})`);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+                
+            }
+        },
         createUserClub: {
             type: UserClubType,
             args: {
@@ -1142,6 +1179,52 @@ const Mutation = new GraphQLObjectType({
                     pool.query(`UPDATE user_clubs SET coins = coins - ${escape(coins)} WHERE id = ${escape(club_id)}`);
                 } catch (e) {
                     console.log(e);
+                }
+            }
+        },
+        removePlayerFromTransferpile: {
+            type: TransferpileType,
+            args: {
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                id: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+            },
+            async resolve(parent, {
+                club_id,
+                id
+            }) {
+                try {
+                    await pool.query(`DELETE FROM club_transfers WHERE id = ${escape(id)} AND club_id = ${escape(club_id)}`);
+                    return true;
+                } catch (e) {
+                    console.log(e);
+                    return false;
+                }
+            }
+        },
+        removePlayerFromClub: {
+            type: ClubPlayerType,
+            args: {
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                id: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+            },
+            async resolve(parent, {
+                club_id,
+                id
+            }) {
+                try {
+                    await pool.query(`DELETE FROM club_players WHERE id = ${escape(id)} AND club_id = ${escape(club_id)}`);
+                    return true;
+                } catch (e) {
+                    console.log(e);
+                    return false;
                 }
             }
         }
