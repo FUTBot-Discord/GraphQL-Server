@@ -842,7 +842,7 @@ const RootQuery = new GraphQLObjectType({
                 } else {
                     if (!page || page == undefined) {
                         try {
-                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY t.auction_id IS NOT NULL, p.rating DESC`);
+                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id JOIN players_meta m ON m.id = p.asset_id where t.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY t.auction_id IS NOT NULL, p.rating DESC`);
                         } catch (e) {
                             return null;
                         }
@@ -859,7 +859,7 @@ const RootQuery = new GraphQLObjectType({
                         }
 
                         try {
-                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id where t.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY t.auction_id IS NOT NULL, p.rating DESC ${limit}`);
+                            return await pool.query(`select t.* from club_transfers t JOIN players p ON p.id = t.player_id JOIN players_meta m ON m.id = p.asset_id where t.club_id = ${escape(club_id)} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY t.auction_id IS NOT NULL, p.rating DESC ${limit}`);
                         } catch (e) {
                             return null;
                         }
