@@ -2,6 +2,26 @@
 import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLBoolean } from 'graphql';
 import { escape } from 'mysql';
 import pool from './mysql';
+import { createClient } from 'async-redis';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const redis = createClient({
+    "host": process.env.REDIS_HOST,
+    "db": process.env.REDIS_DATABASE,
+    "retry_strategy": function (options) {
+        if (options.error && options.error.code === 'ECONNREFUSED') {
+            return new Error('The server refused the connection');
+        }
+        if (options.total_retry_time > 1000 * 60 * 60) {
+            return new Error('Retry time exhausted');
+        }
+        if (options.attempt > 10) {
+            return undefined;
+        }
+        return Math.min(options.attempt * 100, 3000);
+    }
+});
 
 const CardType = new GraphQLObjectType({
     name: 'Card',
@@ -305,6 +325,7 @@ const AuctionPlayerType = new GraphQLObjectType({
         b_club_id: { type: GraphQLString },
         s_club_id: { type: GraphQLString },
         current_bid: { type: GraphQLInt },
+        start_price: { type: GraphQLInt },
         buy_now: { type: GraphQLInt },
         end_timestamp: { type: GraphQLString },
         card_info: {
@@ -926,27 +947,52 @@ const RootQuery = new GraphQLObjectType({
 
                 if (!name || name == undefined) {
                     try {
-                        return await pool.query(`SELECT * FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} ORDER BY end_timestamp DESC ${limit}`);
+                        return await pool.query(`SELECT * FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} ORDER BY end_timestamp ASC ${limit}`);
                     } catch (e) {
                         return null;
                     }
                 } else {
                     try {
-                        return await pool.query(`SELECT * FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY end_timestamp DESC ${limit}`);
+                        return await pool.query(`SELECT * FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY end_timestamp ASC ${limit}`);
                     } catch (e) {
                         return null;
                     }
                 }
             }
         },
+        getAuctionById: {
+            type: AuctionPlayerType,
+            description: "Fetch auction by id.",
+            args: {
+                id: {
+                        type: new GraphQLNonNull(GraphQLString)
+                        }
+            },
+            async resolve(parent, { id }) {
+                    try {
+                        let res = await pool.query(`SELECT * FROM auctions WHERE id = ${escape(id)}`);
+                        return res[0];
+                    } catch (e) {
+                        return null;
+                    }
+            }
+        },
         getCurrentAuctionsCount: {
             type: AuctionCountType,
             description: "Fetch amount of auctions.",
             args: {
-                name: { type: GraphQLString },
-                club_id: { type: new GraphQLNonNull(GraphQLString) }
+                name: {
+                    type: GraphQLString
+                },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            async resolve(parent, { club_id, name, page }) {
+            async resolve(parent, {
+                club_id,
+                name,
+                page
+            }) {
                 let cDate = new Date();
                 cDate = cDate.getTime();
 
@@ -1150,25 +1196,97 @@ const Mutation = new GraphQLObjectType({
                     type: GraphQLInt
                 },
             },
-            resolve(parent, {
+            async resolve(parent, {
                 club_id,
                 player_id,
                 auction_id
             }) {
+                let tId;
+
                 if (!auction_id || auction_id == undefined) {
                     try {
-                        pool.query(`INSERT INTO club_transfers (club_id, player_id) VALUES (${escape(club_id)}, ${escape(player_id)})`);
+                        await pool.query(`INSERT INTO club_transfers (club_id, player_id) VALUES (${escape(club_id)}, ${escape(player_id)})`)
+                            .then(() => pool.query("SELECT LAST_INSERT_ID() as transfer_id"))
+                            .then(r => tId = r[0].transfer_id);
+                        
+                        return {
+                            id: tId
+                        };
+
                     } catch (e) {
                         console.log(e);
                     }
                 } else {
                     try {
-                        pool.query(`INSERT INTO club_transfers (club_id, player_id, auction_id) VALUES (${escape(club_id)}, ${escape(player_id)}, ${escape(auction_id)})`);
+                        await pool.query(`INSERT INTO club_transfers (club_id, player_id, auction_id) VALUES (${escape(club_id)}, ${escape(player_id)}, ${escape(auction_id)})`)
+                            .then(() => pool.query("SELECT LAST_INSERT_ID() as transfer_id"))
+                            .then(r => tId = r[0].transfer_id);
+
+                        return {
+                            id: tId
+                        };
                     } catch (e) {
                         console.log(e);
                     }
                 }
                 
+            }
+        },
+        updateTransferPlayer: {
+            type: TransferpileType,
+            args: {
+                id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                auction_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+            },
+            async resolve(parent, {
+                id,
+                auction_id
+            }) {
+                    try {
+                        pool.query(`UPDATE club_transfers SET auction_id = ${escape(auction_id)} WHERE id = ${escape(id)}`);
+                    } catch (e) {
+                        console.log(e);
+                    }
+            }
+        },
+        addAuctionPlayer: {
+            type: AuctionPlayerType,
+            args: {
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                player_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                end_timestamp: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                buy_now: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                start_price: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
+            },
+            async resolve(parent, {
+                club_id,
+                player_id,
+                end_timestamp,
+                buy_now,
+                start_price
+            }) {
+                let aId;
+                const date = (new Date()).getTime() + end_timestamp;
+
+                await pool.query(`INSERT INTO auctions (player_id, s_club_id, buy_now, end_timestamp, start_price) VALUES (${escape(player_id)}, ${escape(club_id)}, ${escape(buy_now)}, ${escape(date)}, ${escape(start_price)})`)
+                    .then(r => aId = r.insertId)
+                    .then(() => redis.psetex(aId, end_timestamp, player_id));
+                
+                return { "id": aId };
             }
         },
         createUserClub: {
@@ -1228,6 +1346,26 @@ const Mutation = new GraphQLObjectType({
             }) {
                 try {
                     await pool.query(`DELETE FROM club_transfers WHERE id = ${escape(id)} AND club_id = ${escape(club_id)}`);
+                    return true;
+                } catch (e) {
+                    console.log(e);
+                    return false;
+                }
+            }
+        },
+        resetTransferPlayer: {
+            type: TransferpileType,
+            args: {
+                auction_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
+            },
+            async resolve(parent, {
+                auction_id
+            }) {
+                try {
+                    await pool.query(`DELETE FROM auctions WHERE id = ${escape(auction_id)}`);
+                    await pool.query(`UPDATE club_transfers SET auction_id = NULL WHERE auction_id = ${escape(auction_id)}`);
                     return true;
                 } catch (e) {
                     console.log(e);
