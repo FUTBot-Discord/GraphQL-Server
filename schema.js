@@ -1206,8 +1206,7 @@ const Mutation = new GraphQLObjectType({
                 if (!auction_id || auction_id == undefined) {
                     try {
                         await pool.query(`INSERT INTO club_transfers (club_id, player_id) VALUES (${escape(club_id)}, ${escape(player_id)})`)
-                            .then(() => pool.query("SELECT LAST_INSERT_ID() as transfer_id"))
-                            .then(r => tId = r[0].transfer_id);
+                            .then(r => tId = r.insertId);
                         
                         return {
                             id: tId
@@ -1219,8 +1218,7 @@ const Mutation = new GraphQLObjectType({
                 } else {
                     try {
                         await pool.query(`INSERT INTO club_transfers (club_id, player_id, auction_id) VALUES (${escape(club_id)}, ${escape(player_id)}, ${escape(auction_id)})`)
-                            .then(() => pool.query("SELECT LAST_INSERT_ID() as transfer_id"))
-                            .then(r => tId = r[0].transfer_id);
+                            .then(r => tId = r.insertId);
 
                         return {
                             id: tId
