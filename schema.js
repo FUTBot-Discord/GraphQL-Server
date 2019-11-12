@@ -953,7 +953,7 @@ const RootQuery = new GraphQLObjectType({
                     }
                 } else {
                     try {
-                        return await pool.query(`SELECT * FROM auctions JOIN players p ON p.id = auctions.player_id JOIN players_meta m ON m.id = p.asset_id WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY end_timestamp ASC ${limit}`);
+                        return await pool.query(`SELECT auctions.* FROM auctions JOIN players p ON p.id = auctions.player_id JOIN players_meta m ON m.id = p.asset_id WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY end_timestamp ASC ${limit}`);
                     } catch (e) {
                         return null;
                     }
@@ -990,8 +990,7 @@ const RootQuery = new GraphQLObjectType({
             },
             async resolve(parent, {
                 club_id,
-                name,
-                page
+                name
             }) {
                 let cDate = new Date();
                 cDate = cDate.getTime();
@@ -1005,7 +1004,7 @@ const RootQuery = new GraphQLObjectType({
                     }
                 } else {
                     try {
-                        let res = await pool.query(`SELECT COUNT(id) as auctions FROM auctions JOIN players p ON p.id = auctions.player_id JOIN players_meta m ON m.id = p.asset_id WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)})`);
+                        let res = await pool.query(`SELECT COUNT(auctions.id) as auctions FROM auctions JOIN players p ON p.id = auctions.player_id JOIN players_meta m ON m.id = p.asset_id WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)})`);
                         return res[0];
                     } catch (e) {
                         return null;
