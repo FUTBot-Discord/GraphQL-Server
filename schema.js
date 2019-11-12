@@ -934,10 +934,10 @@ const RootQuery = new GraphQLObjectType({
                 let limit;
 
                 if (page == 1 || page == 0) {
-                    limit = `LIMIT 16`;
+                    limit = `LIMIT 12`;
                 } else if (page > 1) {
-                    let n = (page - 1) * 16;
-                    limit = `LIMIT ${n},16`;
+                    let n = (page - 1) * 12;
+                    limit = `LIMIT ${n},12`;
                 } else {
                     return null;
                 }
@@ -953,7 +953,7 @@ const RootQuery = new GraphQLObjectType({
                     }
                 } else {
                     try {
-                        return await pool.query(`SELECT * FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY end_timestamp ASC ${limit}`);
+                        return await pool.query(`SELECT * FROM auctions JOIN players p ON p.id = auctions.player_id JOIN players_meta m ON m.id = p.asset_id WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)}) ORDER BY end_timestamp ASC ${limit}`);
                     } catch (e) {
                         return null;
                     }
@@ -1005,7 +1005,7 @@ const RootQuery = new GraphQLObjectType({
                     }
                 } else {
                     try {
-                        let res = await pool.query(`SELECT COUNT(id) as auctions FROM auctions WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)})`);
+                        let res = await pool.query(`SELECT COUNT(id) as auctions FROM auctions JOIN players p ON p.id = auctions.player_id JOIN players_meta m ON m.id = p.asset_id WHERE s_club_id <> ${escape(club_id)} AND end_timestamp > ${cDate} AND (CONCAT_WS(' ',m.first_name,m.last_name) LIKE ${escape(`%${name}%`)} OR m.common_name LIKE ${escape(`%${name}%`)})`);
                         return res[0];
                     } catch (e) {
                         return null;
