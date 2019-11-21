@@ -2,7 +2,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import util from 'util';
-import { createPool } from 'mysql';
+import {
+    createPool
+} from 'mysql';
 
 const pool = createPool({
     host: process.env.MYSQL_HOST,
@@ -10,7 +12,9 @@ const pool = createPool({
     database: process.env.MYSQL_DATABASE,
     user: process.env.MYSQL_USER,
     password: process.env.MYSQL_PASSWORD,
-    connectionLimit: 100
+    connectionLimit: 100,
+    supportBigNumbers: true,
+    bigNumberStrings: true
 });
 
 // Ping database to check for common exception errors.

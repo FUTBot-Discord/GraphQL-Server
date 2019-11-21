@@ -1,8 +1,21 @@
 // Imports
-import { GraphQLID, GraphQLInt, GraphQLObjectType, GraphQLSchema, GraphQLString, GraphQLList, GraphQLNonNull, GraphQLBoolean } from 'graphql';
-import { escape } from 'mysql';
+import {
+    GraphQLID,
+    GraphQLInt,
+    GraphQLObjectType,
+    GraphQLSchema,
+    GraphQLString,
+    GraphQLList,
+    GraphQLNonNull,
+    GraphQLBoolean
+} from 'graphql';
+import {
+    escape
+} from 'mysql';
 import pool from './mysql';
-import { createClient } from 'async-redis';
+import {
+    createClient
+} from 'async-redis';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -26,14 +39,30 @@ const redis = createClient({
 const CardType = new GraphQLObjectType({
     name: 'Card',
     fields: () => ({
-        asset_id: { type: GraphQLID },
-        att_workrate: { type: GraphQLInt },
-        cardsubtypeid: { type: GraphQLInt },
-        def: { type: GraphQLInt },
-        def_workrate: { type: GraphQLInt },
-        dri: { type: GraphQLInt },
-        id: { type: GraphQLID },
-        league_id: { type: GraphQLID },
+        asset_id: {
+            type: GraphQLID
+        },
+        att_workrate: {
+            type: GraphQLInt
+        },
+        cardsubtypeid: {
+            type: GraphQLInt
+        },
+        def: {
+            type: GraphQLInt
+        },
+        def_workrate: {
+            type: GraphQLInt
+        },
+        dri: {
+            type: GraphQLInt
+        },
+        id: {
+            type: GraphQLID
+        },
+        league_id: {
+            type: GraphQLID
+        },
         league_info: {
             type: LeagueType,
             async resolve(parent) {
@@ -45,7 +74,9 @@ const CardType = new GraphQLObjectType({
                 }
             }
         },
-        nation_id: { type: GraphQLID },
+        nation_id: {
+            type: GraphQLID
+        },
         nation_info: {
             type: NationType,
             async resolve(parent, args) {
@@ -57,9 +88,15 @@ const CardType = new GraphQLObjectType({
                 }
             }
         },
-        pac: { type: GraphQLInt },
-        pas: { type: GraphQLInt },
-        phy: { type: GraphQLInt },
+        pac: {
+            type: GraphQLInt
+        },
+        pas: {
+            type: GraphQLInt
+        },
+        phy: {
+            type: GraphQLInt
+        },
         meta_info: {
             type: PlayerType,
             async resolve(parent, args) {
@@ -71,13 +108,27 @@ const CardType = new GraphQLObjectType({
                 }
             }
         },
-        preferred_position: { type: GraphQLString },
-        preferred_foot: { type: GraphQLInt },
-        rareflag: { type: GraphQLInt },
-        rating: { type: GraphQLInt },
-        resource_id: { type: GraphQLInt },
-        sho: { type: GraphQLInt },
-        skillmoves: { type: GraphQLInt },
+        preferred_position: {
+            type: GraphQLString
+        },
+        preferred_foot: {
+            type: GraphQLInt
+        },
+        rareflag: {
+            type: GraphQLInt
+        },
+        rating: {
+            type: GraphQLInt
+        },
+        resource_id: {
+            type: GraphQLInt
+        },
+        sho: {
+            type: GraphQLInt
+        },
+        skillmoves: {
+            type: GraphQLInt
+        },
         other_versions: {
             type: new GraphQLList(CardType),
             async resolve(parent, args) {
@@ -88,7 +139,9 @@ const CardType = new GraphQLObjectType({
                 }
             }
         },
-        club_id: { type: GraphQLID },
+        club_id: {
+            type: GraphQLID
+        },
         club_info: {
             type: ClubType,
             async resolve(parent, args) {
@@ -100,9 +153,15 @@ const CardType = new GraphQLObjectType({
                 }
             }
         },
-        weakfootabilitytypecode: { type: GraphQLInt },
-        totw: { type: GraphQLBoolean },
-        min_price: { type: GraphQLInt }
+        weakfootabilitytypecode: {
+            type: GraphQLInt
+        },
+        totw: {
+            type: GraphQLBoolean
+        },
+        min_price: {
+            type: GraphQLInt
+        }
     })
 });
 
@@ -119,39 +178,81 @@ const PlayerType = new GraphQLObjectType({
                 }
             }
         },
-        id: { type: GraphQLID },
-        common_name: { type: GraphQLString },
-        last_name: { type: GraphQLString },
-        first_name: { type: GraphQLString },
-        img: { type: GraphQLString },
-        birthday: { type: GraphQLInt },
-        height: { type: GraphQLInt }
+        id: {
+            type: GraphQLID
+        },
+        common_name: {
+            type: GraphQLString
+        },
+        last_name: {
+            type: GraphQLString
+        },
+        first_name: {
+            type: GraphQLString
+        },
+        img: {
+            type: GraphQLString
+        },
+        birthday: {
+            type: GraphQLInt
+        },
+        height: {
+            type: GraphQLInt
+        }
     })
 });
 
 const FUTBotType = new GraphQLObjectType({
     name: 'FUTBot',
     fields: () => ({
-        id: { type: GraphQLInt },
-        common_name: { type: GraphQLString },
-        last_name: { type: GraphQLString },
-        first_name: { type: GraphQLString },
-        rareflag: { type: GraphQLInt },
-        rating: { type: GraphQLInt }
+        id: {
+            type: GraphQLInt
+        },
+        common_name: {
+            type: GraphQLString
+        },
+        last_name: {
+            type: GraphQLString
+        },
+        first_name: {
+            type: GraphQLString
+        },
+        rareflag: {
+            type: GraphQLInt
+        },
+        rating: {
+            type: GraphQLInt
+        }
     })
 });
 
 const ClubType = new GraphQLObjectType({
     name: 'Club',
     fields: () => ({
-        abbr_name: { type: GraphQLString },
-        name: { type: GraphQLString },
-        id: { type: GraphQLInt },
-        r: { type: GraphQLInt },
-        g: { type: GraphQLInt },
-        b: { type: GraphQLInt },
-        img: { type: GraphQLString },
-        league_id: { type: GraphQLID },
+        abbr_name: {
+            type: GraphQLString
+        },
+        name: {
+            type: GraphQLString
+        },
+        id: {
+            type: GraphQLInt
+        },
+        r: {
+            type: GraphQLInt
+        },
+        g: {
+            type: GraphQLInt
+        },
+        b: {
+            type: GraphQLInt
+        },
+        img: {
+            type: GraphQLString
+        },
+        league_id: {
+            type: GraphQLID
+        },
         league_info: {
             type: LeagueType,
             async resolve(parent) {
@@ -163,7 +264,9 @@ const ClubType = new GraphQLObjectType({
                 }
             }
         },
-        name: { type: GraphQLString },
+        name: {
+            type: GraphQLString
+        },
         card_list: {
             type: new GraphQLList(CardType),
             async resolve(parent, args) {
@@ -180,9 +283,15 @@ const ClubType = new GraphQLObjectType({
 const NationType = new GraphQLObjectType({
     name: 'Nation',
     fields: () => ({
-        name: { type: GraphQLString },
-        id: { type: GraphQLID },
-        img: { type: GraphQLString },
+        name: {
+            type: GraphQLString
+        },
+        id: {
+            type: GraphQLID
+        },
+        img: {
+            type: GraphQLString
+        },
         league_list: {
             type: new GraphQLList(LeagueType),
             async resolve(parent, args) {
@@ -199,7 +308,9 @@ const NationType = new GraphQLObjectType({
 const LeagueType = new GraphQLObjectType({
     name: 'League',
     fields: () => ({
-        abbr_name: { type: GraphQLString },
+        abbr_name: {
+            type: GraphQLString
+        },
         clubsList: {
             type: new GraphQLList(ClubType),
             async resolve(parent, args) {
@@ -210,9 +321,15 @@ const LeagueType = new GraphQLObjectType({
                 }
             }
         },
-        id: { type: GraphQLID },
-        img: { type: GraphQLString },
-        nation_id: { type: GraphQLID },
+        id: {
+            type: GraphQLID
+        },
+        img: {
+            type: GraphQLString
+        },
+        nation_id: {
+            type: GraphQLID
+        },
         nation_info: {
             type: NationType,
             async resolve(parent) {
@@ -230,22 +347,42 @@ const LeagueType = new GraphQLObjectType({
 const CommandType = new GraphQLObjectType({
     name: 'Command',
     fields: () => ({
-        command: { type: GraphQLString },
-        guild_id: { type: GraphQLString },
-        id: { type: GraphQLInt }
+        command: {
+            type: GraphQLString
+        },
+        guild_id: {
+            type: GraphQLString
+        },
+        id: {
+            type: GraphQLInt
+        }
     })
 });
 
 const FlippingPlayerType = new GraphQLObjectType({
     name: 'FlippingPlayer',
     fields: () => ({
-        player_id: { type: GraphQLInt },
-        guild_id: { type: GraphQLString },
-        console: { type: GraphQLString },
-        id: { type: GraphQLInt },
-        buy_price: { type: GraphQLInt },
-        sell_price: { type: GraphQLInt },
-        sold_price: { type: GraphQLInt },
+        player_id: {
+            type: GraphQLInt
+        },
+        guild_id: {
+            type: GraphQLString
+        },
+        console: {
+            type: GraphQLString
+        },
+        id: {
+            type: GraphQLInt
+        },
+        buy_price: {
+            type: GraphQLInt
+        },
+        sell_price: {
+            type: GraphQLInt
+        },
+        sold_price: {
+            type: GraphQLInt
+        },
         player_info: {
             type: CardType,
             async resolve(parent, args) {
@@ -263,47 +400,93 @@ const FlippingPlayerType = new GraphQLObjectType({
 const CommandPubType = new GraphQLObjectType({
     name: 'CommandPub',
     fields: () => ({
-        command: { type: GraphQLString },
-        id: { type: GraphQLInt }
+        command: {
+            type: GraphQLString
+        },
+        id: {
+            type: GraphQLInt
+        }
     })
 });
 
 const CardColorType = new GraphQLObjectType({
     name: 'CardColor',
     fields: () => ({
-        color_stripes: { type: GraphQLString },
-        color_attr_values: { type: GraphQLString },
-        color_attr_names: { type: GraphQLString },
-        color_text: { type: GraphQLString },
-        id: { type: GraphQLInt },
-        font_1: { type: GraphQLString },
-        font_2: { type: GraphQLString },
-        font_3: { type: GraphQLString },
-        rarity: { type: GraphQLString }
+        color_stripes: {
+            type: GraphQLString
+        },
+        color_attr_values: {
+            type: GraphQLString
+        },
+        color_attr_names: {
+            type: GraphQLString
+        },
+        color_text: {
+            type: GraphQLString
+        },
+        id: {
+            type: GraphQLInt
+        },
+        font_1: {
+            type: GraphQLString
+        },
+        font_2: {
+            type: GraphQLString
+        },
+        font_3: {
+            type: GraphQLString
+        },
+        rarity: {
+            type: GraphQLString
+        }
     })
 });
 
 const PackType = new GraphQLObjectType({
     name: 'Pack',
     fields: () => ({
-        name: { type: GraphQLString },
-        name_id: { type: GraphQLString },
-        id: { type: GraphQLInt },
-        description: { type: GraphQLString },
-        price: { type: GraphQLInt },
-        points: { type: GraphQLInt },
-        players: { type: GraphQLInt }
+        name: {
+            type: GraphQLString
+        },
+        name_id: {
+            type: GraphQLString
+        },
+        id: {
+            type: GraphQLInt
+        },
+        description: {
+            type: GraphQLString
+        },
+        price: {
+            type: GraphQLInt
+        },
+        points: {
+            type: GraphQLInt
+        },
+        players: {
+            type: GraphQLInt
+        }
     })
 });
 
 const UserClubType = new GraphQLObjectType({
     name: 'UserClub',
     fields: () => ({
-        id: { type: GraphQLInt },
-        author_id: { type: GraphQLString },
-        creation_time: { type: GraphQLInt },
-        coins: { type: GraphQLInt },
-        points: { type: GraphQLInt },
+        id: {
+            type: GraphQLInt
+        },
+        author_id: {
+            type: GraphQLString
+        },
+        creation_time: {
+            type: GraphQLInt
+        },
+        coins: {
+            type: GraphQLInt
+        },
+        points: {
+            type: GraphQLInt
+        },
         player_list: {
             type: new GraphQLList(ClubPlayerType),
             async resolve(parent, args) {
@@ -320,14 +503,30 @@ const UserClubType = new GraphQLObjectType({
 const AuctionPlayerType = new GraphQLObjectType({
     name: 'AuctionPlayer',
     fields: () => ({
-        id: { type: GraphQLInt },
-        player_id: { type: GraphQLInt },
-        b_club_id: { type: GraphQLString },
-        s_club_id: { type: GraphQLString },
-        current_bid: { type: GraphQLInt },
-        start_price: { type: GraphQLInt },
-        buy_now: { type: GraphQLInt },
-        end_timestamp: { type: GraphQLString },
+        id: {
+            type: GraphQLInt
+        },
+        player_id: {
+            type: GraphQLInt
+        },
+        b_club_id: {
+            type: GraphQLInt
+        },
+        s_club_id: {
+            type: GraphQLInt
+        },
+        current_bid: {
+            type: GraphQLInt
+        },
+        start_price: {
+            type: GraphQLInt
+        },
+        buy_now: {
+            type: GraphQLInt
+        },
+        end_timestamp: {
+            type: GraphQLString
+        },
         card_info: {
             type: CardType,
             async resolve(parent, args) {
@@ -367,9 +566,15 @@ const AuctionPlayerType = new GraphQLObjectType({
 const TransferpileType = new GraphQLObjectType({
     name: 'Transferpile',
     fields: () => ({
-        id: { type: GraphQLInt },
-        player_id: { type: GraphQLInt },
-        club_id: { type: GraphQLString },
+        id: {
+            type: GraphQLInt
+        },
+        player_id: {
+            type: GraphQLInt
+        },
+        club_id: {
+            type: GraphQLString
+        },
         auction_id: {
             type: GraphQLInt
         },
@@ -412,16 +617,24 @@ const TransferpileType = new GraphQLObjectType({
 const AuctionCountType = new GraphQLObjectType({
     name: 'AuctionCount',
     fields: () => ({
-        auctions: { type: GraphQLInt }
+        auctions: {
+            type: GraphQLInt
+        }
     })
 });
 
 const ClubPlayerType = new GraphQLObjectType({
     name: 'ClubPlayer',
     fields: () => ({
-        id: { type: GraphQLInt },
-        club_id: { type: GraphQLString },
-        player_id: { type: GraphQLString },
+        id: {
+            type: GraphQLInt
+        },
+        club_id: {
+            type: GraphQLString
+        },
+        player_id: {
+            type: GraphQLString
+        },
         card_info: {
             type: CardType,
             async resolve(parent, args) {
@@ -450,15 +663,33 @@ const ClubPlayerType = new GraphQLObjectType({
 const CommandLogType = new GraphQLObjectType({
     name: 'CommandLog',
     fields: () => ({
-        command: { type: GraphQLString },
-        guildName: { type: GraphQLString },
-        channelName: { type: GraphQLString },
-        userName: { type: GraphQLString },
-        guildId: { type: GraphQLInt },
-        channelId: { type: GraphQLInt },
-        userId: { type: GraphQLInt },
-        id: { type: GraphQLInt },
-        timestamp: { type: GraphQLString }
+        command: {
+            type: GraphQLString
+        },
+        guildName: {
+            type: GraphQLString
+        },
+        channelName: {
+            type: GraphQLString
+        },
+        userName: {
+            type: GraphQLString
+        },
+        guildId: {
+            type: GraphQLInt
+        },
+        channelId: {
+            type: GraphQLInt
+        },
+        userId: {
+            type: GraphQLInt
+        },
+        id: {
+            type: GraphQLInt
+        },
+        timestamp: {
+            type: GraphQLString
+        }
     })
 });
 
@@ -469,8 +700,14 @@ const RootQuery = new GraphQLObjectType({
         getPlayerVersionById: {
             type: CardType,
             description: "Fetch player by id.",
-            args: { id: { type: GraphQLID } },
-            async resolve(parent, { id }) {
+            args: {
+                id: {
+                    type: GraphQLID
+                }
+            },
+            async resolve(parent, {
+                id
+            }) {
                 try {
                     let res = await pool.query(`SELECT * FROM players WHERE id = ${escape(id)}`);
                     return res[0];
@@ -483,8 +720,14 @@ const RootQuery = new GraphQLObjectType({
         getCardColorsByRarity: {
             type: CardColorType,
             description: "Fetch card colors by rarity.",
-            args: { rarity: { type: GraphQLString } },
-            async resolve(parent, { rarity }) {
+            args: {
+                rarity: {
+                    type: GraphQLString
+                }
+            },
+            async resolve(parent, {
+                rarity
+            }) {
                 try {
                     let res = await pool.query(`SELECT * FROM card_colors WHERE rarity = ${escape(rarity)}`);
                     return res[0];
@@ -497,8 +740,14 @@ const RootQuery = new GraphQLObjectType({
         getPacks: {
             type: new GraphQLList(PackType),
             description: "Fetch packs.",
-            args: { name: { type: GraphQLString } },
-            async resolve(parent, { name }) {
+            args: {
+                name: {
+                    type: GraphQLString
+                }
+            },
+            async resolve(parent, {
+                name
+            }) {
                 if (!name || name == undefined) {
                     try {
                         let res = await pool.query(`SELECT * FROM packs`);
@@ -521,8 +770,14 @@ const RootQuery = new GraphQLObjectType({
         getPackById: {
             type: PackType,
             description: "Fetch pack by id.",
-            args: { id: { type: GraphQLID } },
-            async resolve(parent, { id }) {
+            args: {
+                id: {
+                    type: GraphQLID
+                }
+            },
+            async resolve(parent, {
+                id
+            }) {
                 try {
                     let res = await pool.query(`SELECT * FROM packs WHERE id = ${escape(id)}`);
                     return res[0];
@@ -546,7 +801,11 @@ const RootQuery = new GraphQLObjectType({
                     type: GraphQLID
                 }
             },
-            async resolve(parent, { ratingB, ratingT, rareflag }) {
+            async resolve(parent, {
+                ratingB,
+                ratingT,
+                rareflag
+            }) {
                 if (!rareflag || rareflag == undefined) {
                     try {
                         let res = await pool.query(`SELECT * FROM players WHERE rating >= ${escape(ratingB)} AND rating <= ${escape(ratingT)} ORDER BY RAND() LIMIT 1`);
@@ -587,8 +846,14 @@ const RootQuery = new GraphQLObjectType({
         getPlayerVersionsByQuality: {
             type: new GraphQLList(CardType),
             description: "Fetch players by quality.",
-            args: { qualtiy: { type: GraphQLString } },
-            async resolve(parent, { qualtiy }) {
+            args: {
+                qualtiy: {
+                    type: GraphQLString
+                }
+            },
+            async resolve(parent, {
+                qualtiy
+            }) {
                 try {
                     let rating;
                     if (qualtiy.includes("gold")) rating = [75, 100];
@@ -606,8 +871,14 @@ const RootQuery = new GraphQLObjectType({
         getPlayerVersionsByAssetId: {
             type: new GraphQLList(CardType),
             description: "Fetch list of players by asset_id.",
-            args: { asset_id: { type: GraphQLID } },
-            async resolve(parent, { asset_id }) {
+            args: {
+                asset_id: {
+                    type: GraphQLID
+                }
+            },
+            async resolve(parent, {
+                asset_id
+            }) {
                 try {
                     return await pool.query(`SELECT * FROM players WHERE asset_id = ${escape(asset_id)}`);
                 } catch (e) {
@@ -619,8 +890,14 @@ const RootQuery = new GraphQLObjectType({
         getPlayersByName: {
             type: new GraphQLList(PlayerType),
             description: "Fetch list of players by name. This has a limit of 20 players.",
-            args: { name: { type: GraphQLString } },
-            async resolve(parent, { name }) {
+            args: {
+                name: {
+                    type: GraphQLString
+                }
+            },
+            async resolve(parent, {
+                name
+            }) {
                 try {
                     return await pool.query(`SELECT DISTINCT pm.common_name, pm.first_name, pm.id, pm.last_name, pm.img, pm.birthday, pm.height FROM players p INNER JOIN players_meta pm ON p.asset_id = pm.id WHERE CONCAT_WS(' ',pm.first_name,pm.last_name) LIKE ${escape(`%${name}%`)} OR pm.common_name LIKE ${escape(`%${name}%`)} LIMIT 20`);
                 } catch (e) {
@@ -631,8 +908,18 @@ const RootQuery = new GraphQLObjectType({
         FUTBotGetPlayersByName: {
             type: new GraphQLList(FUTBotType),
             description: "Fetch list of players by name. This has a limit of 20 players.",
-            args: { name: { type: GraphQLString }, rating: { type: GraphQLInt } },
-            async resolve(parent, { name, rating }) {
+            args: {
+                name: {
+                    type: GraphQLString
+                },
+                rating: {
+                    type: GraphQLInt
+                }
+            },
+            async resolve(parent, {
+                name,
+                rating
+            }) {
                 if (rating && rating !== undefined && isFinite(rating)) {
                     try {
                         return await pool.query(`SELECT pm.common_name, pm.first_name, p.id, pm.last_name, p.rating, p.rareflag FROM players p INNER JOIN players_meta pm ON p.asset_id = pm.id WHERE (CONCAT_WS(' ',pm.first_name,pm.last_name) LIKE ${escape(`%${name}%`)} OR pm.common_name LIKE ${escape(`%${name}%`)}) AND p.rating = ${escape(rating)} ORDER BY p.rating DESC LIMIT 20`);
@@ -663,8 +950,18 @@ const RootQuery = new GraphQLObjectType({
         getCommandWhitelist: {
             type: new GraphQLList(CommandType),
             description: "Fetch list of commands allowed by guildId.",
-            args: { guild_id: { type: new GraphQLNonNull(GraphQLString) }, command: { type: GraphQLString } },
-            async resolve(parent, { guild_id, command }) {
+            args: {
+                guild_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                command: {
+                    type: GraphQLString
+                }
+            },
+            async resolve(parent, {
+                guild_id,
+                command
+            }) {
                 if (command == undefined && !command) {
                     try {
                         return await pool.query(`SELECT * from whitelist_commands WHERE guild_id = ${escape(guild_id)}`);
@@ -684,8 +981,18 @@ const RootQuery = new GraphQLObjectType({
         getFlippingList: {
             type: new GraphQLList(FlippingPlayerType),
             description: "Fetch flipping list from guildId and console.",
-            args: { guild_id: { type: new GraphQLNonNull(GraphQLString) }, console: { type: new GraphQLNonNull(GraphQLString) } },
-            async resolve(parent, { guild_id, console }) {
+            args: {
+                guild_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                console: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
+            },
+            async resolve(parent, {
+                guild_id,
+                console
+            }) {
                 try {
                     return await pool.query(`SELECT * from flipping_list WHERE guild_id = ${escape(guild_id)} AND console = ${escape(console)}`);
                 } catch (e) {
@@ -697,11 +1004,21 @@ const RootQuery = new GraphQLObjectType({
             type: FlippingPlayerType,
             description: "Fetch flipping list item guildId, console and playerId.",
             args: {
-                guild_id: { type: new GraphQLNonNull(GraphQLString) },
-                console: { type: new GraphQLNonNull(GraphQLString) },
-                player_id: { type: new GraphQLNonNull(GraphQLInt) }
+                guild_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                console: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                player_id: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
             },
-            async resolve(parent, { guild_id, console, player_id }) {
+            async resolve(parent, {
+                guild_id,
+                console,
+                player_id
+            }) {
                 try {
                     let res = await pool.query(`SELECT * from flipping_list WHERE guild_id = ${escape(guild_id)} AND console = ${escape(console)} AND player_id = ${escape(player_id)}`);
                     return res[0];
@@ -714,11 +1031,34 @@ const RootQuery = new GraphQLObjectType({
             type: UserClubType,
             description: "Fetch club info by authorid",
             args: {
-                author_id: { type: new GraphQLNonNull(GraphQLString) }
+                author_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            async resolve(parent, { author_id }) {
+            async resolve(parent, {
+                author_id
+            }) {
                 try {
                     let res = await pool.query(`SELECT * from user_clubs WHERE author_id = ${escape(author_id)}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
+            }
+        },
+        getUserClubById: {
+            type: UserClubType,
+            description: "Fetch club info by id",
+            args: {
+                id: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
+            },
+            async resolve(parent, {
+                id
+            }) {
+                try {
+                    let res = await pool.query(`SELECT * from user_clubs WHERE id = ${escape(id)}`);
                     return res[0];
                 } catch (e) {
                     return null;
@@ -740,11 +1080,21 @@ const RootQuery = new GraphQLObjectType({
             type: ClubPlayerType,
             description: "Fetch club player by id, playerid or clubid",
             args: {
-                club_id: { type: GraphQLString },
-                player_id: { type: GraphQLString },
-                id: { type: GraphQLInt },
+                club_id: {
+                    type: GraphQLString
+                },
+                player_id: {
+                    type: GraphQLString
+                },
+                id: {
+                    type: GraphQLInt
+                },
             },
-            async resolve(parent, { club_id, player_id, id }) {
+            async resolve(parent, {
+                club_id,
+                player_id,
+                id
+            }) {
                 if (!id || id == undefined) {
                     try {
                         let res = await pool.query(`SELECT * from club_players WHERE club_id = ${escape(club_id)} AND player_id = ${escape(player_id)}`);
@@ -766,11 +1116,21 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(ClubPlayerType),
             description: "Fetch all club players.",
             args: {
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                name: { type: GraphQLString },
-                page: { type: GraphQLInt }
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                name: {
+                    type: GraphQLString
+                },
+                page: {
+                    type: GraphQLInt
+                }
             },
-            async resolve(parent, { club_id, name, page }) {
+            async resolve(parent, {
+                club_id,
+                name,
+                page
+            }) {
                 if (!name || name == undefined) {
                     if (!page || page == undefined) {
                         try {
@@ -828,13 +1188,21 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(TransferpileType),
             description: "Fetch all from transferpile.",
             args: {
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                page: { type: GraphQLInt },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                page: {
+                    type: GraphQLInt
+                },
                 name: {
                     type: GraphQLString
                 }
             },
-            async resolve(parent, { club_id, name, page }) {
+            async resolve(parent, {
+                club_id,
+                name,
+                page
+            }) {
                 if (!name || name == undefined) {
                     if (!page || page == undefined) {
                         try {
@@ -892,10 +1260,17 @@ const RootQuery = new GraphQLObjectType({
             type: TransferpileType,
             description: "Fetch player from transferpile.",
             args: {
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                id: { type: new GraphQLNonNull(GraphQLString) }
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            async resolve(parent, { club_id, id }) {
+            async resolve(parent, {
+                club_id,
+                id
+            }) {
                 try {
                     let res = await pool.query(`SELECT * FROM club_transfers WHERE club_id = ${escape(club_id)} AND id = ${escape(id)}`);
                     return res[0];
@@ -909,10 +1284,17 @@ const RootQuery = new GraphQLObjectType({
             type: ClubPlayerType,
             description: "Fetch player from club by id.",
             args: {
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                id: { type: new GraphQLNonNull(GraphQLString) }
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            async resolve(parent, { club_id, id }) {
+            async resolve(parent, {
+                club_id,
+                id
+            }) {
                 try {
                     let res = await pool.query(`SELECT * FROM club_players WHERE club_id = ${escape(club_id)} AND id = ${escape(id)}`);
                     return res[0];
@@ -926,11 +1308,21 @@ const RootQuery = new GraphQLObjectType({
             type: new GraphQLList(AuctionPlayerType),
             description: "Fetch page of actions.",
             args: {
-                name: { type: GraphQLString },
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                page: { type: new GraphQLNonNull(GraphQLInt) }
+                name: {
+                    type: GraphQLString
+                },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                page: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
             },
-            async resolve(parent, { club_id, name, page }) {
+            async resolve(parent, {
+                club_id,
+                name,
+                page
+            }) {
                 let limit;
 
                 if (page == 1 || page == 0) {
@@ -965,16 +1357,18 @@ const RootQuery = new GraphQLObjectType({
             description: "Fetch auction by id.",
             args: {
                 id: {
-                        type: new GraphQLNonNull(GraphQLString)
-                        }
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            async resolve(parent, { id }) {
-                    try {
-                        let res = await pool.query(`SELECT * FROM auctions WHERE id = ${escape(id)}`);
-                        return res[0];
-                    } catch (e) {
-                        return null;
-                    }
+            async resolve(parent, {
+                id
+            }) {
+                try {
+                    let res = await pool.query(`SELECT * FROM auctions WHERE id = ${escape(id)}`);
+                    return res[0];
+                } catch (e) {
+                    return null;
+                }
             }
         },
         getCurrentAuctionsCount: {
@@ -1064,10 +1458,17 @@ const Mutation = new GraphQLObjectType({
         addCommandWhitelist: {
             type: CommandType,
             args: {
-                command: { type: new GraphQLNonNull(GraphQLString) },
-                guildId: { type: new GraphQLNonNull(GraphQLString) }
+                command: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                guildId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            resolve(parent, { command, guildId }) {
+            resolve(parent, {
+                command,
+                guildId
+            }) {
                 try {
                     pool.query(`INSERT INTO whitelist_commands (command, guild_id) VALUES (${escape(command)}, ${escape(guildId)})`);
                 } catch (e) {
@@ -1078,10 +1479,17 @@ const Mutation = new GraphQLObjectType({
         removeCommandWhitelist: {
             type: CommandType,
             args: {
-                command: { type: new GraphQLNonNull(GraphQLString) },
-                guildId: { type: new GraphQLNonNull(GraphQLString) }
+                command: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                guildId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            resolve(parent, { command, guildId }) {
+            resolve(parent, {
+                command,
+                guildId
+            }) {
                 try {
                     pool.query(`DELETE FROM whitelist_commands WHERE command = ${escape(command)} AND guild_id = ${escape(guildId)}`);
                 } catch (e) {
@@ -1092,15 +1500,37 @@ const Mutation = new GraphQLObjectType({
         addCommandLog: {
             type: CommandLogType,
             args: {
-                command: { type: new GraphQLNonNull(GraphQLString) },
-                guildId: { type: new GraphQLNonNull(GraphQLString) },
-                channelId: { type: new GraphQLNonNull(GraphQLString) },
-                userId: { type: new GraphQLNonNull(GraphQLString) },
-                guildName: { type: new GraphQLNonNull(GraphQLString) },
-                channelName: { type: new GraphQLNonNull(GraphQLString) },
-                userName: { type: new GraphQLNonNull(GraphQLString) }
+                command: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                guildId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                channelId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                userId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                guildName: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                channelName: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                userName: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            resolve(parent, { command, guildId, channelId, userId, guildName, channelName, userName }) {
+            resolve(parent, {
+                command,
+                guildId,
+                channelId,
+                userId,
+                guildName,
+                channelName,
+                userName
+            }) {
                 try {
                     pool.query(`INSERT INTO command_log (guild_name, guild_id, user_name, user_id, channel_name, channel_id, command) VALUES (${escape(guildName.rIE())}, ${guildId}, ${escape(userName.rIE())}, ${userId}, ${escape(channelName.rIE())}, ${channelId}, ${escape(command.rIE())})`);
                 } catch (e) {
@@ -1111,11 +1541,21 @@ const Mutation = new GraphQLObjectType({
         removeItemFlippingList: {
             type: FlippingPlayerType,
             args: {
-                pConsole: { type: new GraphQLNonNull(GraphQLString) },
-                guildId: { type: new GraphQLNonNull(GraphQLString) },
-                player_id: { type: GraphQLInt }
+                pConsole: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                guildId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                player_id: {
+                    type: GraphQLInt
+                }
             },
-            resolve(parent, { pConsole, guildId, player_id }) {
+            resolve(parent, {
+                pConsole,
+                guildId,
+                player_id
+            }) {
                 if (!player_id || player_id == undefined) {
                     try {
                         pool.query(`DELETE FROM flipping_list WHERE guild_id = ${escape(guildId)} AND console = ${escape(pConsole)}`);
@@ -1135,14 +1575,33 @@ const Mutation = new GraphQLObjectType({
         addItemFlippingList: {
             type: FlippingPlayerType,
             args: {
-                pConsole: { type: new GraphQLNonNull(GraphQLString) },
-                guildId: { type: new GraphQLNonNull(GraphQLString) },
-                player_id: { type: new GraphQLNonNull(GraphQLInt) },
-                buy_price: { type: new GraphQLNonNull(GraphQLInt) },
-                sell_price: { type: new GraphQLNonNull(GraphQLInt) },
-                sold_price: { type: new GraphQLNonNull(GraphQLInt) }
+                pConsole: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                guildId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                player_id: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                buy_price: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                sell_price: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                sold_price: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
             },
-            resolve(parent, { pConsole, guildId, player_id, buy_price, sell_price, sold_price }) {
+            resolve(parent, {
+                pConsole,
+                guildId,
+                player_id,
+                buy_price,
+                sell_price,
+                sold_price
+            }) {
                 try {
                     pool.query(`INSERT INTO flipping_list (console, guild_id, player_id, buy_price, sell_price, sold_price) VALUES (${escape(pConsole)}, ${escape(guildId)}, ${escape(player_id)}, ${escape(buy_price)}, ${escape(sell_price)}, ${escape(sold_price)})`);
                 } catch (e) {
@@ -1153,14 +1612,33 @@ const Mutation = new GraphQLObjectType({
         updateItemFlippingList: {
             type: FlippingPlayerType,
             args: {
-                pConsole: { type: new GraphQLNonNull(GraphQLString) },
-                guildId: { type: new GraphQLNonNull(GraphQLString) },
-                player_id: { type: new GraphQLNonNull(GraphQLInt) },
-                buy_price: { type: new GraphQLNonNull(GraphQLInt) },
-                sell_price: { type: new GraphQLNonNull(GraphQLInt) },
-                sold_price: { type: new GraphQLNonNull(GraphQLInt) }
+                pConsole: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                guildId: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                player_id: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                buy_price: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                sell_price: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                sold_price: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
             },
-            resolve(parent, { pConsole, guildId, player_id, buy_price, sell_price, sold_price }) {
+            resolve(parent, {
+                pConsole,
+                guildId,
+                player_id,
+                buy_price,
+                sell_price,
+                sold_price
+            }) {
                 try {
                     pool.query(`UPDATE flipping_list buy_price = ${escape(buy_price)}, sell_price = ${escape(sell_price)}, sold_price = ${escape(sold_price)} WHERE guild_id = ${escape(guildId)} AND console = ${escape(pConsole)} AND player_id = ${escape(player_id)}`);
                 } catch (e) {
@@ -1171,10 +1649,17 @@ const Mutation = new GraphQLObjectType({
         addClubPlayer: {
             type: ClubPlayerType,
             args: {
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                player_id: { type: new GraphQLNonNull(GraphQLString) },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                player_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
             },
-            resolve(parent, { club_id, player_id }) {
+            resolve(parent, {
+                club_id,
+                player_id
+            }) {
                 try {
                     pool.query(`INSERT INTO club_players (club_id, player_id) VALUES (${escape(club_id)}, ${escape(player_id)})`);
                 } catch (e) {
@@ -1206,7 +1691,7 @@ const Mutation = new GraphQLObjectType({
                     try {
                         await pool.query(`INSERT INTO club_transfers (club_id, player_id) VALUES (${escape(club_id)}, ${escape(player_id)})`)
                             .then(r => tId = r.insertId);
-                        
+
                         return {
                             id: tId
                         };
@@ -1226,7 +1711,7 @@ const Mutation = new GraphQLObjectType({
                         console.log(e);
                     }
                 }
-                
+
             }
         },
         updateTransferPlayer: {
@@ -1243,11 +1728,11 @@ const Mutation = new GraphQLObjectType({
                 id,
                 auction_id
             }) {
-                    try {
-                        pool.query(`UPDATE club_transfers SET auction_id = ${escape(auction_id)} WHERE id = ${escape(id)}`);
-                    } catch (e) {
-                        console.log(e);
-                    }
+                try {
+                    pool.query(`UPDATE club_transfers SET auction_id = ${escape(auction_id)} WHERE id = ${escape(id)}`);
+                } catch (e) {
+                    console.log(e);
+                }
             }
         },
         addAuctionPlayer: {
@@ -1282,16 +1767,22 @@ const Mutation = new GraphQLObjectType({
                 await pool.query(`INSERT INTO auctions (player_id, s_club_id, buy_now, end_timestamp, start_price) VALUES (${escape(player_id)}, ${escape(club_id)}, ${escape(buy_now)}, ${escape(date)}, ${escape(start_price)})`)
                     .then(r => aId = r.insertId)
                     .then(() => redis.psetex(aId, end_timestamp, player_id));
-                
-                return { "id": aId };
+
+                return {
+                    "id": aId
+                };
             }
         },
         createUserClub: {
             type: UserClubType,
             args: {
-                author_id: { type: new GraphQLNonNull(GraphQLString) }
+                author_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
             },
-            resolve(parent, { author_id }) {
+            resolve(parent, {
+                author_id
+            }) {
                 try {
                     pool.query(`INSERT INTO user_clubs (author_id) VALUES (${escape(author_id)})`);
                 } catch (e) {
@@ -1302,12 +1793,19 @@ const Mutation = new GraphQLObjectType({
         addCoinsToClub: {
             type: UserClubType,
             args: {
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                coins: { type: new GraphQLNonNull(GraphQLString) },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                coins: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
             },
-            resolve(parent, { club_id, coins }) {
+            resolve(parent, {
+                club_id,
+                coins
+            }) {
                 try {
-                    pool.query(`UPDATE user_clubs SET coins = coins + ${escape(coins)} WHERE id = ${escape(club_id)}`);
+                    pool.query(`UPDATE user_clubs SET coins = coins + ${escape(parseInt(coins, 10))} WHERE id = ${escape(club_id)}`);
                 } catch (e) {
                     console.log(e);
                 }
@@ -1316,12 +1814,19 @@ const Mutation = new GraphQLObjectType({
         removeCoinsFromClub: {
             type: UserClubType,
             args: {
-                club_id: { type: new GraphQLNonNull(GraphQLString) },
-                coins: { type: new GraphQLNonNull(GraphQLString) },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                coins: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
             },
-            resolve(parent, { club_id, coins }) {
+            resolve(parent, {
+                club_id,
+                coins
+            }) {
                 try {
-                    pool.query(`UPDATE user_clubs SET coins = coins - ${escape(coins)} WHERE id = ${escape(club_id)}`);
+                    pool.query(`UPDATE user_clubs SET coins = coins - ${escape(parseInt(coins, 10))} WHERE id = ${escape(club_id)}`);
                 } catch (e) {
                     console.log(e);
                 }
@@ -1363,6 +1868,65 @@ const Mutation = new GraphQLObjectType({
                 try {
                     await pool.query(`DELETE FROM auctions WHERE id = ${escape(auction_id)}`);
                     await pool.query(`UPDATE club_transfers SET auction_id = NULL WHERE auction_id = ${escape(auction_id)}`);
+                    return true;
+                } catch (e) {
+                    console.log(e);
+                    return false;
+                }
+            }
+        },
+        changeTransferPlayer: {
+            type: TransferpileType,
+            args: {
+                auction_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
+            },
+            async resolve(parent, {
+                auction_id,
+                club_id
+            }) {
+                try {
+                    await pool.query(`DELETE FROM auctions WHERE id = ${escape(auction_id)}`);
+                    await pool.query(`UPDATE club_transfers SET auction_id = NULL, club_id = ${escape(club_id)} WHERE auction_id = ${escape(auction_id)}`);
+                    return true;
+                } catch (e) {
+                    console.log(e);
+                    return false;
+                }
+            }
+        },
+        changeAuctionPlayer: {
+            type: AuctionPlayerType,
+            args: {
+                auction_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                current_bid: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                end_timestamp: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
+            },
+            async resolve(parent, {
+                auction_id,
+                club_id,
+                current_bid,
+                end_timestamp
+            }) {
+                try {
+                    await pool.query(`UPDATE auctions SET b_club_id = ${escape(club_id)}, current_bid = ${escape(current_bid)}, end_timestamp = ${escape(end_timestamp)} WHERE id = ${escape(auction_id)}`)
+                        .then(() => {
+                            redis.pexpireat(auction_id, end_timestamp);
+                        });
+
                     return true;
                 } catch (e) {
                     console.log(e);
