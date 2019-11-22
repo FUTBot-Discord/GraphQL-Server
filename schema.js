@@ -1832,6 +1832,48 @@ const Mutation = new GraphQLObjectType({
                 }
             }
         },
+        addPointsToClub: {
+            type: UserClubType,
+            args: {
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                points: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+            },
+            resolve(parent, {
+                club_id,
+                points
+            }) {
+                try {
+                    pool.query(`UPDATE user_clubs SET points = points + ${escape(parseInt(points, 10))} WHERE id = ${escape(club_id)}`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
+        removePointsFromClub: {
+            type: UserClubType,
+            args: {
+                club_id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                points: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+            },
+            resolve(parent, {
+                club_id,
+                points
+            }) {
+                try {
+                    pool.query(`UPDATE user_clubs SET points = points - ${escape(parseInt(points, 10))} WHERE id = ${escape(club_id)}`);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        },
         removePlayerFromTransferpile: {
             type: TransferpileType,
             args: {
