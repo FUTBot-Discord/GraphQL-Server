@@ -693,6 +693,18 @@ const CommandLogType = new GraphQLObjectType({
     })
 });
 
+const RarityType = new GraphQLObjectType({
+    name: 'Rarity',
+    fields: () => ({
+        id: {
+            type: GraphQLString
+        },
+        rarity: {
+            type: GraphQLString
+        }
+    })
+});
+
 const RootQuery = new GraphQLObjectType({
     name: 'RootQueryType',
     description: 'Here you can find all the available queries.',
@@ -1371,6 +1383,29 @@ const RootQuery = new GraphQLObjectType({
                 }
             }
         },
+        getRarityName: {
+            type: RarityType,
+            description: "Fetch rarity name.",
+            args: {
+                rating: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                },
+                rareflag: {
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
+            },
+            async resolve(parent, {
+                rating, rareflag
+            }) {
+                try {
+                    let quality = getQuality(rating);
+                    let res = await pool.query(`SELECT * FROM rarities WHERE id = ${escape(rareflag + "-" + quality)}`);
+                    return res[0] ? res[0] : {"id": null, "rarity": "Unknown Cardtype"};
+                } catch (e) {
+                    return {"id": null, "rarity": "Unknown Cardtype"};
+                }
+            }
+        },
         getCurrentAuctionsCount: {
             type: AuctionCountType,
             description: "Fetch amount of auctions.",
@@ -2009,4 +2044,11 @@ export default new GraphQLSchema({
 
 String.prototype.rIE = function (char) {
     return this.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
+};
+
+function getQuality(rating) {
+    if (rating < 65) return "bronze";
+    if (rating < 75) return "silver";
+
+    return "gold";
 };
